@@ -7,7 +7,7 @@
   4. Weekly Report: AI 생성 리포트 미리보기 + PDF 다운로드
 
 Usage:
-    streamlit run dashboard/app.py
+    .streamlit run dashboard/app.py
 """
 
 import sys

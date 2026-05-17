@@ -361,7 +361,7 @@ python -m analysis.anomaly_detection
 python -m report.weekly_report
 
 # 10. Dashboard
-streamlit run dashboard/app.py
+.streamlit run dashboard/app.py
 ```
 
 ---
