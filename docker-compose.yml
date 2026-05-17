@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: cx_monitor_db
+    environment:
+      POSTGRES_DB: cx_monitor
+      POSTGRES_USER: cx_admin
+      POSTGRES_PASSWORD: cx_secret
+    ports:
+      - "5435:5432"
+    volumes:
+      - cx_pgdata:/var/lib/postgresql/data
+
+volumes:
+  cx_pgdata:

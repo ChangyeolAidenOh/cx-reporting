@@ -1,0 +1,16 @@
+﻿brand,topic_label,avg_engagement,search_signal,quadrant,sample_count
+hanwha,건강·라이프,21838.1,1.3119,high-high,21
+hanwha,고객후기,50256.14,-2.6585,high-low,35
+hanwha,교육·전문성,1095.83,3.7682,high-high,6
+hanwha,상품홍보,493.36,-5.4962,high-low,11
+hanwha,이벤트·프로모션,14617.0,-5.0504,high-low,16
+kyobo,건강·라이프,20630.27,-1.6081,high-low,15
+kyobo,고객후기,321.91,-5.2503,high-low,11
+kyobo,교육·전문성,23628.88,-0.5365,high-low,17
+kyobo,상품홍보,3685.38,-8.6616,high-low,8
+kyobo,이벤트·프로모션,671.0,-2.8503,high-low,16
+samsung,건강·라이프,15601.25,-3.0077,high-low,44
+samsung,고객후기,3392.9,-2.5592,high-low,21
+samsung,교육·전문성,9441.5,-7.3405,high-low,16
+samsung,상품홍보,1735.17,-1.5696,high-low,24
+samsung,이벤트·프로모션,5998.47,-3.0007,high-low,34

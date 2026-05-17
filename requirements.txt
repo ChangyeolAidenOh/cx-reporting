@@ -1,0 +1,32 @@
+# Core
+python-dotenv==1.1.0
+psycopg2-binary==2.9.9
+pandas>=2.2.0
+numpy>=1.26.0
+
+# NLP
+bertopic>=0.16.0
+kiwipiepy>=0.18.0
+gensim>=4.3.0
+sentence-transformers>=3.0.0
+scikit-learn>=1.5.0
+
+# Time series / Anomaly detection
+statsmodels>=0.14.0
+
+# Visualization
+plotly>=5.22.0
+streamlit>=1.35.0
+
+# Report generation
+reportlab>=4.2.0
+
+# API clients
+requests>=2.32.0
+google-api-python-client>=2.130.0
+
+# LLM
+openai>=1.30.0
+
+# Utilities
+tqdm>=4.66.0
