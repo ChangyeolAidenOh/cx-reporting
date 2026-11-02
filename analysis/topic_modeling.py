@@ -22,9 +22,7 @@ import pandas as pd
 from config.db import get_conn
 
 
-# ============================================================
-# Korean tokenizer
-# ============================================================
+### Korean tokenizer
 
 def get_tokenizer():
     """Initialize kiwipiepy tokenizer."""
@@ -49,18 +47,24 @@ def tokenize_korean(text, kiwi, min_len=2):
     return tokens
 
 
-# ============================================================
-# Stopwords
-# ============================================================
+### Stopwords
 
 INSURANCE_STOPWORDS = [
-    "보험", "가입", "상품", "상담", "설계",  # too generic
-    "정보", "확인", "내용", "관련", "경우",
+    "보험", "가입", "상품", "상담", "설계",
+    "정보", "확인", "내용", "관련",
     "이용", "안내", "사항", "문의", "제공",
     "부분", "정도", "생각", "사람", "하나",
     "그것", "자체", "무료", "추천", "비교",
     "블로그", "카페", "네이버", "링크", "클릭",
     "광고", "협찬", "포스팅", "작성",
+    # 손해보험 도메인 일반어 (토픽 변별력 없음)
+    "손해보험", "화재", "해상", "다이렉트", "보험사",
+    "보험료", "보장", "가능", "진행", "경우",
+    # 브랜드명 (brand 컬럼으로 이미 분리됨, 토픽 변별력 없음)
+    "kb손해보험", "kb", "삼성화재", "삼성", "db손해보험", "db", "db다이렉트",
+    "현대해상", "현대", "메리츠화재", "메리츠", "프로미", "프로미tv",
+    # 퀴즈 댓글 이벤트 토큰
+    "정답", "1번", "2번", "3번", "4번", "4회", "완료", "감사합니다",
 ]
 
 
@@ -274,7 +278,7 @@ def run(min_topic_size=15, nr_topics="auto", lda_num_topics=10):
     doc_ids = df["id"].tolist()
 
     # Tokenize for LDA
-    print("Tokenizing with kiwipiepy...")
+    print("Tokenizing")
     kiwi = get_tokenizer()
     tokenized = []
     for doc in docs:
@@ -309,7 +313,7 @@ def run(min_topic_size=15, nr_topics="auto", lda_num_topics=10):
     topic_counts = pd.Series(topics).value_counts().sort_index()
     for topic_id, count in topic_counts.items():
         label = labels.get(topic_id, "?")
-        print(f"  Topic {topic_id}: {count} docs -- {label}")
+        print(f"  Topic {topic_id}: {count} docs {label}")
 
     print(f"\nPhase 3a (topic modeling) complete.")
     print(f"  Next: Phase 3b (sentiment analysis)")

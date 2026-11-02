@@ -1,43 +1,33 @@
 """Apply manual topic category mapping to staging.content_enriched.
 
-Maps 43 BERTopic topics -> 6 high-level categories.
+Maps BERTopic stage-1 (0-58) and stage-2 (100-109, 200-214) topics
+-> 7 business categories for 손해보험 content analysis.
 
 Usage:
     python -m analysis.topic_mapping
 """
-
+import pandas as pd
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from config.db import get_conn
 
-# BERTopic ID -> high-level category
-TOPIC_CATEGORY = {
-    # 상품홍보
-    0: "상품홍보", 6: "상품홍보", 21: "상품홍보",
-    24: "상품홍보", 36: "상품홍보", 40: "상품홍보",
-    # 교육·전문성
-    4: "교육·전문성", 5: "교육·전문성", 9: "교육·전문성",
-    10: "교육·전문성", 14: "교육·전문성", 15: "교육·전문성",
-    23: "교육·전문성", 41: "교육·전문성", 16: "교육·전문성",
-    37: "교육·전문성",
-    # 건강·라이프
-    2: "건강·라이프", 3: "건강·라이프", 13: "건강·라이프",
-    19: "건강·라이프", 20: "건강·라이프", 31: "건강·라이프",
-    12: "건강·라이프", 39: "건강·라이프",
-    # 이벤트·프로모션
-    8: "이벤트·프로모션", 11: "이벤트·프로모션", 18: "이벤트·프로모션",
-    26: "이벤트·프로모션", 27: "이벤트·프로모션", 35: "이벤트·프로모션",
-    30: "이벤트·프로모션", 34: "이벤트·프로모션",
-    # 고객후기
-    1: "고객후기", 17: "고객후기", 28: "고객후기",
-    33: "고객후기", 38: "고객후기", 42: "고객후기",
-    # noise
-    -1: "noise", 7: "noise", 22: "noise",
-    25: "noise", 29: "noise", 32: "noise",
-
+CATEGORY_TOPICS = {
+    "자동차보험": [201, 202, 211, 212, 214, 102],
+    "실손·건강보험": [204, 208, 209, 210, 109, 105],
+    "보험금 청구·보상": [205, 207],
+    "상품 설계·고객후기": [200, 203, 206, 213, 108, 101, 0, 100],
+    "브랜드 캠페인": [1, 2, 5, 7, 15, 16, 18, 19, 21, 22, 26, 30, 31, 36, 39, 54,
+                11, 14, 17, 20, 27, 34, 37, 46, 55, 57, 58],
+    "이벤트·프로모션": [6, 10, 12, 13, 24, 28, 29, 35, 38, 41, 48, 49, 50,
+                 3, 8, 23, 47, 52],
+    "noise": [-1, 4, 9, 25, 32, 33, 40, 42, 43, 44, 45, 51, 53, 56,
+              103, 104, 106, 107],
 }
+
+# Flatten to topic_id -> category
+TOPIC_CATEGORY = {t: cat for cat, ids in CATEGORY_TOPICS.items() for t in ids}
 
 
 def run():
@@ -45,28 +35,43 @@ def run():
         with conn.cursor() as cur:
             for topic_id, category in TOPIC_CATEGORY.items():
                 cur.execute(
-                    """
-                    UPDATE staging.content_enriched
-                    SET topic_label = %s
-                    WHERE topic_id = %s
-                    """,
+                    "UPDATE staging.content_enriched SET topic_label = %s WHERE topic_id = %s",
                     (category, topic_id),
                 )
 
-            # Verify
+            # Any topic id not in the mapping -> flag so it is not silently dropped
             cur.execute(
                 """
-                SELECT topic_label, COUNT(*) as cnt
+                SELECT topic_id, COUNT(*) FROM staging.content_enriched
+                WHERE topic_id NOT IN %s GROUP BY topic_id
+                """,
+                (tuple(TOPIC_CATEGORY.keys()),),
+            )
+            unmapped = cur.fetchall()
+
+            cur.execute(
+                """
+                SELECT topic_label, COUNT(*) AS cnt
                 FROM staging.content_enriched
-                GROUP BY topic_label
-                ORDER BY cnt DESC
+                GROUP BY topic_label ORDER BY cnt DESC
                 """
             )
             results = cur.fetchall()
 
     print("Topic category distribution:")
+    total = sum(c for _, c in results)
     for label, count in results:
-        print(f"  {label}: {count}")
+        print(f"  {label}: {count} ({count / total * 100:.1f}%)")
+
+    if unmapped:
+        print("\n[WARN] Unmapped topic ids (still carry raw BERTopic label):")
+        for t, c in unmapped:
+            print(f"  topic {t}: {c} docs")
+
+    with get_conn() as conn:
+        pd.read_sql("SELECT id, brand, source, topic_id, topic_label, sentiment_label, sentiment_score "
+                    "FROM staging.content_enriched", conn).to_csv(
+            "data/exports/content_enriched.csv", index=False, encoding="utf-8-sig")
 
 
 if __name__ == "__main__":

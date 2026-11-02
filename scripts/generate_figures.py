@@ -1,6 +1,4 @@
-"""Generate figures for README / portfolio.
-
-Saves 4 key charts to figures/ directory (700x560 canvas).
+"""Generate README figures (4 charts) for the 손해보험 5사 analysis.
 
 Usage:
     python scripts/generate_figures.py
@@ -8,204 +6,113 @@ Usage:
 
 import sys
 import os
-import json
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
+from config.settings import BRANDS, BRAND_KR_TO_KEY, TARGET_BRAND
 
-FIGURES_DIR = "figures"
-WIDTH, HEIGHT = 700, 560
+FIG = "figures"
+W, H = 700, 560
+os.makedirs(FIG, exist_ok=True)
 
-os.makedirs(FIGURES_DIR, exist_ok=True)
+TARGET_KR = BRANDS[TARGET_BRAND]["name_kr"]
+BRAND_ORDER = [v["name_kr"] for v in BRANDS.values()]
+COLORS = {"KB손해보험": "#FFB300", "삼성화재": "#1428A0", "DB손해보험": "#008C3C",
+          "현대해상": "#003478", "메리츠화재": "#D52B1E"}
+CAT_ORDER = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "브랜드 캠페인", "이벤트·프로모션"]
 
 
 def fig_sov_trend():
-    """Figure 1: SoV 4-brand trend."""
     df = pd.read_csv("data/exports/brand_search_weekly.csv", parse_dates=["week_start"])
+    fig = go.Figure()
+    for b in BRAND_ORDER:
+        d = df[df["brand"] == b].sort_values("week_start")
+        fig.add_trace(go.Scatter(x=d["week_start"], y=d["sov_pct"], name=b, mode="lines",
+                                 line=dict(color=COLORS.get(b, "#888"), width=3 if b == TARGET_KR else 1.5)))
+    fig.update_layout(title="Brand Search Interest — Share of Voice (%)", yaxis_title="SoV %",
+                      width=W, height=H, template="plotly_white", font=dict(size=12),
+                      legend=dict(orientation="h", y=-0.12))
+    fig.write_image(f"{FIG}/01_sov_trend.png", scale=2)
+    print("Saved 01_sov_trend.png")
 
-    colors = {
-        "삼성생명": "#1428A0",
-        "한화생명": "#FF6600",
-        "교보생명": "#003DA5",
-        "메트라이프": "#00A651",
-    }
+
+def fig_brand_category():
+    t = pd.read_csv("data/exports/brand_category_test.csv")
+    key_order = list(BRANDS.keys())
+    pv = t.pivot(index="brand", columns="topic_label", values="ratio").reindex(key_order)[CAT_ORDER]
+    sig = t.pivot(index="brand", columns="topic_label", values="significant").reindex(key_order)[CAT_ORDER]
+    txt = pv.round(2).astype(str) + np.where(sig.fillna(False), "★", "")
+    ylab = [BRANDS[k]["name_kr"] for k in key_order]
+    fig = go.Figure(go.Heatmap(z=np.log2(pv.values.astype(float)), x=CAT_ORDER, y=ylab,
+                               colorscale="RdBu_r", zmid=0, text=txt.values, texttemplate="%{text}",
+                               textfont=dict(size=12), colorbar=dict(title="log2 ratio")))
+    fig.update_layout(title="Brand × Category VoC Index vs. Other 4 Brands<br>"
+                            "<sup>★ = Bonferroni-significant (α=0.05/30) · symmetric subset</sup>",
+                      width=W, height=H, template="plotly_white", font=dict(size=12),
+                      yaxis=dict(autorange="reversed"))
+    fig.write_image(f"{FIG}/02_brand_category_index.png", scale=2)
+    print("Saved 02_brand_category_index.png")
+
+
+def fig_sentiment_by_category():
+    from config.db import get_conn
+    with get_conn() as conn:
+        m = pd.read_sql(
+            "SELECT topic_label, sentiment_label AS label FROM staging.content_enriched "
+            "WHERE brand = %s AND sentiment_label IS NOT NULL AND topic_label != 'noise'",
+            conn, params=(TARGET_BRAND,))
+    m = m[m["topic_label"].isin(CAT_ORDER)]
+    ct = pd.crosstab(m["topic_label"], m["label"], normalize="index").reindex(CAT_ORDER).fillna(0)
+    n = m["topic_label"].value_counts().reindex(CAT_ORDER).fillna(0).astype(int)
+    fig = go.Figure()
+    for lab, c in [("positive", "#2ecc71"), ("neutral", "#95a5a6"), ("negative", "#e74c3c")]:
+        if lab in ct:
+            fig.add_trace(go.Bar(x=[f"{cat}<br><sup>n={n[cat]}</sup>" for cat in CAT_ORDER], y=ct[lab] * 100,
+                                 name=lab.title(), marker_color=c,
+                                 text=[f"{v*100:.0f}%" if v > 0.06 else "" for v in ct[lab]],
+                                 textposition="inside", textfont=dict(color="white", size=11)))
+    fig.update_layout(title=f"{TARGET_KR} — Sentiment by VoC Category", barmode="stack", yaxis_title="%",
+                      width=W, height=H, template="plotly_white", font=dict(size=12),
+                      legend=dict(orientation="h", y=-0.2))
+    fig.write_image(f"{FIG}/03_sentiment_by_category.png", scale=2)
+    print("Saved 03_sentiment_by_category.png")
+
+
+def fig_anomalies():
+    import psycopg2
+    from config.db import get_conn
+    df = pd.read_csv("data/exports/brand_search_weekly.csv", parse_dates=["week_start"])
+    with get_conn() as conn:
+        an = pd.read_sql("SELECT brand, detected_date FROM mart.anomaly_log", conn)
+    an["detected_date"] = pd.to_datetime(an["detected_date"])
+    co = an.groupby("detected_date")["brand"].nunique()
+    co_dates = co[co >= 4].index
 
     fig = go.Figure()
-    for brand in ["삼성생명", "한화생명", "교보생명", "메트라이프"]:
-        bdf = df[df["brand"] == brand].sort_values("week_start")
-        fig.add_trace(go.Scatter(
-            x=bdf["week_start"], y=bdf["sov_pct"],
-            name=brand, mode="lines",
-            line=dict(color=colors.get(brand, "#888"), width=2.5 if brand == "메트라이프" else 1.5),
-        ))
-
-    fig.update_layout(
-        title="Brand Search Interest — Share of Voice (%)",
-        xaxis_title="", yaxis_title="SoV %",
-        width=WIDTH, height=HEIGHT,
-        legend=dict(orientation="h", y=-0.12),
-        template="plotly_white",
-        font=dict(size=12),
-    )
-    path = f"{FIGURES_DIR}/01_sov_trend.png"
-    fig.write_image(path, scale=2)
-    print(f"Saved: {path}")
-
-
-def fig_signal_matrix():
-    """Figure 2: Engagement vs Search Interest Signal Matrix."""
-    df = pd.read_csv("data/exports/content_signal_matrix.csv")
-
-    colors = {"samsung": "#1428A0", "hanwha": "#FF6600", "kyobo": "#003DA5"}
-
-    fig = go.Figure()
-    for brand in df["brand"].unique():
-        bdf = df[df["brand"] == brand]
-        fig.add_trace(go.Scatter(
-            x=bdf["avg_engagement"], y=bdf["search_signal"],
-            mode="markers+text",
-            name=brand,
-            text=bdf["topic_label"],
-            textposition="top center",
-            textfont=dict(size=9),
-            marker=dict(
-                size=bdf["sample_count"].clip(lower=10) * 0.8,
-                color=colors.get(brand, "#888"),
-                opacity=0.7,
-            ),
-        ))
-
-    fig.add_hline(y=0, line_dash="dash", line_color="gray", opacity=0.4)
-
-    fig.add_annotation(x=0.02, y=0.98, xref="paper", yref="paper",
-                       text="High Search Signal", showarrow=False,
-                       font=dict(size=10, color="gray"))
-    fig.add_annotation(x=0.02, y=0.02, xref="paper", yref="paper",
-                       text="Low Search Signal", showarrow=False,
-                       font=dict(size=10, color="gray"))
-
-    fig.update_layout(
-        title="Content Signal Matrix — Engagement vs Search Interest",
-        xaxis_title="Avg Engagement (likes + comments)",
-        yaxis_title="Search Interest Signal (WoW %)",
-        width=WIDTH, height=HEIGHT,
-        legend=dict(orientation="h", y=-0.12),
-        template="plotly_white",
-        font=dict(size=12),
-    )
-    path = f"{FIGURES_DIR}/02_signal_matrix.png"
-    fig.write_image(path, scale=2)
-    print(f"Saved: {path}")
-
-
-def fig_channel_sentiment():
-    """Figure 3: Channel-dependent sentiment comparison."""
-    data = {
-        "Channel": ["Blog/Cafe VoC", "Blog/Cafe VoC", "Blog/Cafe VoC",
-                     "Foreign Insurer VoC", "Foreign Insurer VoC", "Foreign Insurer VoC",
-                     "App Store Reviews", "App Store Reviews", "App Store Reviews"],
-        "Sentiment": ["Positive", "Neutral", "Negative"] * 3,
-        "Ratio": [24.5, 66.8, 8.8,
-                  36.6, 44.0, 19.4,
-                  19.3, 8.0, 72.7],
-    }
-    df = pd.DataFrame(data)
-
-    color_map = {"Positive": "#2ecc71", "Neutral": "#95a5a6", "Negative": "#e74c3c"}
-
-    fig = go.Figure()
-    for sentiment in ["Positive", "Neutral", "Negative"]:
-        sdf = df[df["Sentiment"] == sentiment]
-        fig.add_trace(go.Bar(
-            x=sdf["Channel"], y=sdf["Ratio"],
-            name=sentiment,
-            marker_color=color_map[sentiment],
-            text=[f"{v:.1f}%" for v in sdf["Ratio"]],
-            textposition="inside",
-            textfont=dict(size=12, color="white"),
-        ))
-
-    fig.update_layout(
-        title="Channel-Dependent Perception Gap — MetLife Sentiment by VoC Source",
-        xaxis_title="", yaxis_title="Ratio (%)",
-        barmode="stack",
-        width=WIDTH, height=HEIGHT,
-        legend=dict(orientation="h", y=-0.12),
-        template="plotly_white",
-        font=dict(size=12),
-    )
-    path = f"{FIGURES_DIR}/03_channel_sentiment.png"
-    fig.write_image(path, scale=2)
-    print(f"Saved: {path}")
-
-
-def fig_lead_lag():
-    """Figure 4: Lead-Lag cross-correlation for MetLife."""
-    lag_path = "data/exports/lead_lag_results.json"
-    with open(lag_path, "r") as f:
-        lag_data = json.load(f)
-
-    metlife_lags = lag_data.get("metlife", {})
-    if not metlife_lags:
-        print("No MetLife lead-lag data found")
-        return
-
-    lags = sorted(metlife_lags.keys(), key=lambda x: int(x))
-    values = [metlife_lags[l] for l in lags]
-    lag_ints = [int(l) for l in lags]
-
-    colors = ["#2ecc71" if v > 0 else "#e74c3c" for v in values]
-    # Highlight best lag
-    best_idx = max(range(len(values)), key=lambda i: abs(values[i]))
-    colors[best_idx] = "#f39c12"
-
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        x=lag_ints, y=values,
-        marker_color=colors,
-        text=[f"{v:.3f}" for v in values],
-        textposition="outside",
-        textfont=dict(size=9),
-    ))
-
-    fig.add_hline(y=0.3, line_dash="dot", line_color="green", opacity=0.4,
-                  annotation_text="r=0.3", annotation_position="top right")
-    fig.add_hline(y=-0.3, line_dash="dot", line_color="red", opacity=0.4,
-                  annotation_text="r=-0.3", annotation_position="bottom right")
-    fig.add_hline(y=0, line_color="gray", opacity=0.3)
-
-    fig.add_annotation(
-        x=2, y=metlife_lags.get("2", 0),
-        text="Best: lag=+2w, r=0.22",
-        showarrow=True, arrowhead=2,
-        font=dict(size=11, color="#f39c12"),
-    )
-
-    fig.update_layout(
-        title="MetLife Lead-Lag Cross-Correlation (MSTL Residual)",
-        xaxis_title="Lag (weeks) — positive = content leads search",
-        yaxis_title="Correlation (r)",
-        width=WIDTH, height=HEIGHT,
-        template="plotly_white",
-        font=dict(size=12),
-        yaxis=dict(range=[-0.4, 0.4]),
-    )
-    path = f"{FIGURES_DIR}/04_lead_lag_metlife.png"
-    fig.write_image(path, scale=2)
-    print(f"Saved: {path}")
-
-
-def main():
-    print("Generating README figures...\n")
-    fig_sov_trend()
-    fig_signal_matrix()
-    fig_channel_sentiment()
-    fig_lead_lag()
-    print(f"\nAll figures saved to {FIGURES_DIR}/")
+    for b in BRAND_ORDER:
+        d = df[df["brand"] == b].sort_values("week_start")
+        fig.add_trace(go.Scatter(x=d["week_start"], y=d["search_ratio"], name=b, mode="lines",
+                                 line=dict(color=COLORS.get(b, "#888"), width=1.5), opacity=0.8))
+    for dt in co_dates:
+        x0 = (dt - pd.Timedelta(days=3)).strftime("%Y-%m-%d")
+        x1 = (dt + pd.Timedelta(days=3)).strftime("%Y-%m-%d")
+        fig.add_vrect(x0=x0, x1=x1, fillcolor="red", opacity=0.12, line_width=0)
+        fig.add_annotation(x=dt.strftime("%Y-%m-%d"), y=1.02, yref="paper", text=dt.strftime("%y-%m-%d"),
+                           showarrow=False, font=dict(size=9, color="#c0392b"))
+    fig.update_layout(title="3-way Anomaly Detection — Industry-wide Co-movement Weeks<br>"
+                            "<sup>red bands = ≥4 of 5 brands flagged the same week (holiday weeks)</sup>",
+                      yaxis_title="Search Ratio", width=W, height=H, template="plotly_white",
+                      font=dict(size=12), legend=dict(orientation="h", y=-0.12))
+    fig.write_image(f"{FIG}/04_anomaly_comovement.png", scale=2)
+    print("Saved 04_anomaly_comovement.png")
 
 
 if __name__ == "__main__":
-    main()
+    fig_sov_trend()
+    fig_brand_category()
+    fig_sentiment_by_category()
+    fig_anomalies()
+    print(f"\nAll figures saved to {FIG}/")

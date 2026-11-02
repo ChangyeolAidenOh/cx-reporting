@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: cx_admin
       POSTGRES_PASSWORD: cx_secret
     ports:
-      - "5435:5432"
+      - "5438:5432"
     volumes:
       - cx_pgdata:/var/lib/postgresql/data
 

@@ -29,7 +29,7 @@ def get_conn():
 
     conn = psycopg2.connect(
         host=os.getenv("DB_HOST", "localhost"),
-        port=int(os.getenv("DB_PORT", "5435")),
+        port=int(os.getenv("DB_PORT", "5438")),
         dbname=os.getenv("DB_NAME", "cx_monitor"),
         user=os.getenv("DB_USER", "cx_admin"),
         password=os.getenv("DB_PASSWORD", "cx_secret"),

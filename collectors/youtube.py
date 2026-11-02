@@ -1,14 +1,14 @@
 """Collector: YouTube official channel videos + comments.
 
-Fetches videos and comments from 3 insurance brand channels
-(MetLife excluded -- no official channel).
+Fetches videos and comments from insurance brand channels configured in settings.
 Stores in raw.youtube_videos and raw.youtube_comments.
 
 Usage:
     python -m collectors.youtube
-    python -m collectors.youtube --brand samsung
+    python -m collectors.youtube --brand kb
     python -m collectors.youtube --max-videos 100
 """
+
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -34,7 +34,7 @@ def get_youtube_service():
     from googleapiclient.discovery import build
 
     if not API_KEY:
-        print("[ERROR] YOUTUBE_API_KEY not set")
+        print("YOUTUBE_API_KEY not set")
         return None
     return build("youtube", "v3", developerKey=API_KEY)
 
@@ -177,7 +177,7 @@ def save_comments_to_db(comments):
 
 
 def save_to_csv(videos, comments, brand):
-    """Save to CSV fallback."""
+    # To fallback
     os.makedirs("data/raw", exist_ok=True)
 
     if videos:
@@ -205,7 +205,8 @@ def save_to_csv(videos, comments, brand):
 
 
 def collect(brand_filter=None, max_videos=None):
-    """Main collection entry point."""
+
+    # Main collection section
     youtube = get_youtube_service()
     if not youtube:
         return

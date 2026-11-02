@@ -1,96 +1,61 @@
-"""Tab 4: Weekly Report - AI 생성 리포트 미리보기 + PDF 다운로드."""
+"""Tab 4: Weekly Report — AI 생성 리포트 미리보기 + PDF 다운로드."""
 
 import os
+import sys
 import glob
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+
 import pandas as pd
 import streamlit as st
+from config.settings import BRANDS, TARGET_BRAND
 
 
-def load_reports():
-    """Load available reports from exports."""
-    pdf_dir = "data/exports"
-    pdfs = sorted(glob.glob(f"{pdf_dir}/cx_weekly_report_*.pdf"), reverse=True)
-    return pdfs
+def load_pdfs():
+    return sorted(glob.glob("data/exports/cx_weekly_report_*.pdf"), reverse=True)
 
 
 def load_report_text():
-    """Load latest report text from DB or CSV."""
     try:
-        import sys
-        from pathlib import Path
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
         from config.db import get_conn, _use_csv_fallback
-
-        if not _use_csv_fallback():
-            with get_conn() as conn:
-                df = pd.read_sql(
-                    "SELECT brand, week_label, report_text, generated_at "
-                    "FROM mart.weekly_report ORDER BY generated_at DESC LIMIT 10",
-                    conn,
-                )
-            return df
+        if _use_csv_fallback():
+            return pd.DataFrame()
+        with get_conn() as conn:
+            return pd.read_sql(
+                "SELECT brand, week_label, report_text, generated_at FROM mart.weekly_report "
+                "ORDER BY generated_at DESC LIMIT 20", conn)
     except Exception:
-        pass
-    return pd.DataFrame()
+        return pd.DataFrame()
 
 
 def render():
-    st.subheader("AI-Generated Weekly CX Report")
+    st.subheader(f"{BRANDS[TARGET_BRAND]['name_kr']} AI Weekly CX Report")
+    st.caption("Claude Sonnet 생성 · 시그널 태그: [통계 검증 ✓] 단정 가능 · [cluster 시그널] 패턴 · [정성 시그널] 참고")
 
-    # Load available PDFs
-    pdfs = load_reports()
-
+    pdfs = load_pdfs()
     if not pdfs:
-        st.warning("No reports generated yet. Run `python -m report.weekly_report` to generate.")
+        st.warning("No reports yet. Run `python -m report.weekly_report`.")
         return
 
-    # Report selector
-    pdf_names = [os.path.basename(p) for p in pdfs]
-    selected = st.selectbox("Select Report", pdf_names)
-    selected_path = pdfs[pdf_names.index(selected)]
-
-    # PDF download
-    with open(selected_path, "rb") as f:
-        pdf_bytes = f.read()
-
-    st.download_button(
-        label="📥 Download PDF",
-        data=pdf_bytes,
-        file_name=selected,
-        mime="application/pdf",
-    )
+    names = [os.path.basename(p) for p in pdfs]
+    sel = st.selectbox("Select Report", names)
+    path = pdfs[names.index(sel)]
+    with open(path, "rb") as f:
+        st.download_button("📥 Download PDF", f.read(), file_name=sel, mime="application/pdf")
 
     st.markdown("---")
-
-    # Report preview (from DB)
-    reports_df = load_report_text()
-
-    if not reports_df.empty:
-        # Extract week from filename
-        week_from_file = selected.replace("cx_weekly_report_", "").replace("_metlife.pdf", "").replace(".pdf", "")
-
-        # Find matching report
-        matching = reports_df[reports_df["week_label"].str.contains(week_from_file[:8], na=False)]
-        if not matching.empty:
-            report = matching.iloc[0]
-            st.markdown(f"**Generated:** {report['generated_at']}")
+    week_label = sel.replace("cx_weekly_report_", "").split("_")[0]
+    df = load_report_text()
+    if not df.empty:
+        m = df[df["week_label"] == week_label]
+        if not m.empty:
+            st.markdown(f"**Generated:** {m.iloc[0]['generated_at']}")
             st.markdown("---")
-            st.markdown(report["report_text"])
-        else:
-            st.info("Report text preview not available for this week.")
+            st.markdown(m.iloc[0]["report_text"])
+            return
+    # CSV fallback: show text from a sidecar .md if present
+    md = path.replace(".pdf", ".md")
+    if os.path.exists(md):
+        st.markdown(open(md, encoding="utf-8").read())
     else:
-        st.info("Connect to database for report text preview, or view the downloaded PDF.")
-
-    st.markdown("---")
-
-    # Generation controls
-    with st.expander("Generate New Report"):
-        st.markdown("""
-        To generate a new weekly report:
-        ```bash
-        python -m report.weekly_report
-        python -m report.weekly_report --week 2026-W19
-        python -m report.weekly_report --brand metlife
-        ```
-        """)
-        st.caption("Report generation requires Claude API access.")
+        st.info("리포트 본문 미리보기는 DB 연결 시 표시됩니다. PDF를 다운로드해 확인하세요.")

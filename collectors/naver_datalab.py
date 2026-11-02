@@ -99,7 +99,7 @@ def save_to_db(df):
 
 
 def save_to_csv(df, path="data/raw/naver_datalab.csv"):
-    """Save to CSV (append mode)."""
+    """appended"""
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
     if os.path.exists(path):
@@ -113,7 +113,8 @@ def save_to_csv(df, path="data/raw/naver_datalab.csv"):
 
 
 def collect(start_date=None, end_date=None):
-    """Main collection entry point."""
+
+    # Main collection section
     if not CLIENT_ID or not CLIENT_SECRET:
         print("[ERROR] NAVER_CLIENT_ID / NAVER_CLIENT_SECRET not set")
         return None
@@ -126,7 +127,7 @@ def collect(start_date=None, end_date=None):
     df = parse_response(response)
 
     if df.empty:
-        print("[WARN] No data returned")
+        print(" No data returned")
         return None
 
     print(f"  Fetched {len(df)} data points for {df['brand'].nunique()} brands")

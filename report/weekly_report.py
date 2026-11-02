@@ -1,12 +1,12 @@
 """AI Weekly CX Report Generator.
 
-Core deliverable: 1-page MetLife CX Weekly Report PDF.
-Queries mart tables -> structures data -> Claude Sonnet narrative -> PDF.
+Core deliverable: 1-page weekly CX report PDF for the target brand.
+Queries mart tables -> structured prompt with signal-strength tags
+-> Claude Sonnet narrative -> PDF.
 
 Usage:
     python -m report.weekly_report
-    python -m report.weekly_report --week 2026-W20
-    python -m report.weekly_report --brand metlife
+    python -m report.weekly_report --week 2026-W44
 """
 
 import sys
@@ -21,11 +21,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 from dotenv import load_dotenv
 from config.db import get_conn
+from config.settings import BRANDS, BRAND_KR_TO_KEY, TARGET_BRAND
 
 load_dotenv()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-LLM_MODEL_REPORT = os.getenv("LLM_MODEL_REPORT", "claude-sonnet-4-20250514")
+LLM_MODEL_REPORT = os.getenv("LLM_MODEL_REPORT", "claude-sonnet-4-6")
+
+TARGET_KR = BRANDS[TARGET_BRAND]["name_kr"]
+KEY_TO_KR = {k: v["name_kr"] for k, v in BRANDS.items()}
+
+BUSINESS_CONTEXT = f"""{TARGET_KR}은 KB금융그룹 계열 손해보험사로, 자동차보험·장기(실손·건강)보험·일반보험을
+다이렉트 채널과 설계사 채널 양쪽으로 판매한다. 검색 관심도 기준 삼성화재·현대해상·DB손해보험과
+20% 초반대 SoV로 접전 중인 빅4 구도이며, 메리츠화재가 그 아래에 있다.
+손해보험 CX의 핵심 접점은 보험금 청구·보상 처리 경험과 자동차보험 갱신 시점이다.
+이 리포트는 데이터 기반 의사결정 지원 목적이므로, 모든 수치에 시그널 강도 태그를 붙이고
+인과 관계는 단정하지 않는다."""
 
 
 # ============================================================
@@ -33,248 +44,197 @@ LLM_MODEL_REPORT = os.getenv("LLM_MODEL_REPORT", "claude-sonnet-4-20250514")
 # ============================================================
 
 def get_latest_week():
-    """Get the latest available week from mart data."""
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT MAX(week_start) FROM mart.brand_search_weekly")
-            result = cur.fetchone()
-    return result[0] if result else None
+            r = cur.fetchone()
+    return r[0] if r else None
 
 
-def gather_report_data(target_week, brand="metlife"):
-    """Gather all data needed for the weekly report."""
+def gather(target_week):
+    prev_week = target_week - timedelta(days=7)
+    win_start = target_week - timedelta(days=28)
+    anom_start = target_week - timedelta(days=28)
+
     with get_conn() as conn:
-        # 1. Brand search metrics
         search = pd.read_sql(
-            f"""
-            SELECT brand, week_start, search_ratio, wow_change_pct, sov_pct
-            FROM mart.brand_search_weekly
-            WHERE week_start = %s
-            ORDER BY sov_pct DESC
-            """,
-            conn,
-            params=(target_week,),
-        )
-
-        # Previous week for comparison
-        prev_week = target_week - timedelta(days=7)
-        search_prev = pd.read_sql(
-            """
-            SELECT brand, search_ratio, sov_pct
-            FROM mart.brand_search_weekly
-            WHERE week_start = %s
-            """,
-            conn,
-            params=(prev_week,),
-        )
-
-        # 2. Content performance
-        content = pd.read_sql(
-            """
-            SELECT brand, source, topic_label, content_count,
-                   avg_engagement, total_views, total_likes, total_comments
-            FROM mart.content_performance
-            WHERE week_start = %s
-            """,
-            conn,
-            params=(target_week,),
-        )
-
-        # 3. VoC sentiment
-        # To get dataset of VoC, retain recent 4-week rolling window as samples
-        sentiment_start = target_week - timedelta(days=28)
+            "SELECT brand, search_ratio, wow_change_pct, sov_pct FROM mart.brand_search_weekly "
+            "WHERE week_start = %s ORDER BY sov_pct DESC", conn, params=(target_week,))
         sentiment = pd.read_sql(
             """
-            SELECT brand,
-                   AVG(positive_ratio) AS positive_ratio,
-                   AVG(neutral_ratio) AS neutral_ratio,
-                   AVG(negative_ratio) AS negative_ratio,
-                   SUM(total_docs) AS total_docs,
+            SELECT brand, AVG(positive_ratio) AS positive_ratio, AVG(neutral_ratio) AS neutral_ratio,
+                   AVG(negative_ratio) AS negative_ratio, SUM(total_docs) AS total_docs,
                    COUNT(*) AS weeks_covered
-            FROM mart.voc_sentiment
-            WHERE week_start BETWEEN %s AND %s
-            GROUP BY brand
-            """,
-            conn,
-            params=(sentiment_start, target_week),
-        )
-
-        # 4. Anomaly events (recent 4 weeks)
-        anomaly_start = target_week - timedelta(days=28)
+            FROM mart.voc_sentiment WHERE week_start BETWEEN %s AND %s GROUP BY brand
+            """, conn, params=(win_start, target_week))
         anomalies = pd.read_sql(
-            """
-            SELECT brand, detected_date, metric, value, zscore,
-                   methods_agreed, probable_cause
-            FROM mart.anomaly_log
-            WHERE detected_date BETWEEN %s AND %s
-            ORDER BY detected_date DESC
-            """,
-            conn,
-            params=(anomaly_start, target_week),
-        )
+            "SELECT brand, detected_date, metric, value, zscore, methods_agreed FROM mart.anomaly_log "
+            "WHERE detected_date BETWEEN %s AND %s ORDER BY detected_date DESC",
+            conn, params=(anom_start, target_week))
+        reps = pd.read_sql(
+            "SELECT topic_label, sentiment_label, text_clean FROM mart.topic_representatives "
+            "WHERE brand = %s ORDER BY topic_label, sentiment_label", conn, params=(TARGET_BRAND,))
+        content = pd.read_sql(
+            "SELECT brand, content_count, avg_engagement, total_views, total_comments "
+            "FROM mart.content_performance WHERE week_start = %s", conn, params=(target_week,))
 
-        # 5. Signal matrix
-        signals = pd.read_sql(
-            "SELECT * FROM mart.content_signal_matrix",
-            conn,
-        )
+    cat_test_path = "data/exports/brand_category_test.csv"
+    cat_test = pd.read_csv(cat_test_path) if os.path.exists(cat_test_path) else pd.DataFrame()
+    lag_path = "data/exports/lead_lag_results.json"
+    lag = json.load(open(lag_path)) if os.path.exists(lag_path) else {}
 
-        # 6. Lead-lag results
-        lag_path = "data/exports/lead_lag_results.json"
-        lag_results = {}
-        if os.path.exists(lag_path):
-            with open(lag_path, "r") as f:
-                lag_results = json.load(f)
-
-    return {
-        "search": search,
-        "search_prev": search_prev,
-        "content": content,
-        "sentiment": sentiment,
-        "anomalies": anomalies,
-        "signals": signals,
-        "lag_results": lag_results,
-        "target_week": target_week,
-        "brand": brand,
-    }
+    return dict(target_week=target_week, search=search, sentiment=sentiment, anomalies=anomalies,
+                reps=reps, content=content, cat_test=cat_test, lag=lag)
 
 
 # ============================================================
-# LLM narrative generation
+# Prompt
 # ============================================================
 
-def build_prompt(data):
-    """Build structured prompt for Claude Sonnet."""
-    brand = data["brand"]
-    week = data["target_week"]
+def fmt_search(d):
+    lines = []
+    for _, r in d["search"].iterrows():
+        key = BRAND_KR_TO_KEY.get(r["brand"], r["brand"])
+        mark = " <- TARGET" if key == TARGET_BRAND else ""
+        wow = f"{r['wow_change_pct']:+.1f}%" if pd.notna(r["wow_change_pct"]) else "N/A"
+        lines.append(f"  {r['brand']}: SoV {r['sov_pct']:.1f}%, WoW {wow}{mark}  [통계 검증 ✓: 관측값]")
+    return "\n".join(lines)
+
+
+def fmt_content(d):
+    c = d["content"]
+    c = c[c["brand"] == TARGET_KR]
+    if c.empty:
+        return "  해당 주 공식 YouTube 신규 게시 없음"
+    r = c.iloc[0]
+    return (f"  신규 영상 {int(r['content_count'])}건, 조회 {int(r['total_views']):,}, "
+            f"댓글 {int(r['total_comments'])}, engagement {r['avg_engagement']:.3f}%  [cluster 시그널]")
+
+
+def fmt_cat_test(d):
+    t = d["cat_test"]
+    if t.empty:
+        return "  분석 중"
+    tgt = t[(t["brand"] == TARGET_BRAND) & t["significant"]].sort_values("ratio", ascending=False)
+    lines = []
+    for _, r in tgt.iterrows():
+        lines.append(f"  {r['topic_label']}: {r['ratio']:.2f}x (경쟁 4사 평균 대비) "
+                     f"[{r['signal_tag']}, Bonferroni 보정]")
+    lines.append("  ※ 대칭 수집 서브셋 기준 (타겟 브랜드 상품별 쿼리 제외)")
+    return "\n".join(lines)
+
+
+def fmt_sentiment(d):
+    s = d["sentiment"]
+    s = s[s["brand"] == TARGET_BRAND]
+    if s.empty:
+        return "  데이터 부족"
+    r = s.iloc[0]
+    return (f"  (최근 {int(r['weeks_covered'])}주 롤링) Positive {r['positive_ratio']:.1%}, "
+            f"Neutral {r['neutral_ratio']:.1%}, Negative {r['negative_ratio']:.1%}, "
+            f"n={int(r['total_docs'])}  [cluster 시그널]")
+
+
+def fmt_reps(d, n_neg=3, n_pos=2):
+    reps = d["reps"]
+    if reps.empty:
+        return "  없음"
+    out = []
+    neg = reps[reps["sentiment_label"] == "negative"].head(n_neg)
+    pos = reps[reps["sentiment_label"] == "positive"].head(n_pos)
+    for _, r in neg.iterrows():
+        out.append(f"  [부정·{r['topic_label']}] \"{r['text_clean'][:110]}\"")
+    for _, r in pos.iterrows():
+        out.append(f"  [긍정·{r['topic_label']}] \"{r['text_clean'][:110]}\"")
+    out.append("  ※ 원문 어휘 그대로 인용 가능 (변형 시 정합도 손실)  [정성 시그널]")
+    return "\n".join(out)
+
+
+def fmt_anomalies(d):
+    a = d["anomalies"]
+    a = a[a["brand"] == TARGET_KR]
+    if a.empty:
+        return "  없음"
+    return "\n".join(f"  {r['detected_date']}: {r['metric']}={r['value']:.1f} "
+                     f"(z={r['zscore']:+.2f}, {int(r['methods_agreed'])}/3 methods)  [통계 검증 ✓]"
+                     for _, r in a.iterrows())
+
+
+def fmt_lag(d):
+    lags = d["lag"].get(TARGET_BRAND, {})
+    if not lags:
+        return "  분석 중"
+    best = max(lags, key=lambda k: abs(lags[k]))
+    return (f"  최강 시차 lag={int(best):+d}주, r={lags[best]:+.3f}  [정성 시그널: VoC 볼륨 기반, "
+            f"광고 물량 교란 가능성 있어 해석 보류]")
+
+
+def build_prompt(d):
+    week = d["target_week"]
     week_label = f"{week.year}-W{week.isocalendar()[1]:02d}"
-
-    # Format data sections
-    search_summary = ""
-    if not data["search"].empty:
-        brand_map = {"삼성생명": "samsung", "한화생명": "hanwha", "교보생명": "kyobo", "메트라이프": "metlife"}
-        for _, row in data["search"].iterrows():
-            brand_key = brand_map.get(row["brand"], row["brand"])
-            marker = " ← TARGET" if brand_key == brand else ""
-            wow = f"{row['wow_change_pct']:+.1f}%" if pd.notna(row["wow_change_pct"]) else "N/A"
-            search_summary += f"  {row['brand']}: SoV {row['sov_pct']:.1f}%, WoW {wow}{marker}\n"
-
-    sentiment_summary = ""
-    if not data["sentiment"].empty:
-        for _, row in data["sentiment"].iterrows():
-            if row["brand"] == brand:
-                weeks = int(row.get("weeks_covered", 1))
-                sentiment_summary += f"  (최근 {weeks}주 롤링 평균)\n"
-                sentiment_summary += (
-                    f"  Positive: {row['positive_ratio']:.1%}, "
-                    f"Neutral: {row['neutral_ratio']:.1%}, "
-                    f"Negative: {row['negative_ratio']:.1%}\n"
-                    f"  Total docs: {int(row['total_docs'])}\n"
-                )
-
-
-    anomaly_summary = "없음"
-    if not data["anomalies"].empty:
-        brand_anomalies = data["anomalies"][
-            data["anomalies"]["brand"].str.contains(brand, case=False, na=False) |
-            data["anomalies"]["brand"].map(
-                {"삼성생명": "samsung", "한화생명": "hanwha", "교보생명": "kyobo", "메트라이프": "metlife"}
-            ).eq(brand)
-        ]
-        if not brand_anomalies.empty:
-            lines = []
-            for _, a in brand_anomalies.iterrows():
-                lines.append(f"  {a['detected_date']}: {a['metric']}={a['value']:.1f} (z={a['zscore']:.2f})")
-            anomaly_summary = "\n".join(lines)
-
-    lag_summary = ""
-    if brand in data["lag_results"]:
-        lags = data["lag_results"][brand]
-        best_lag = max(lags, key=lambda k: abs(lags[k]))
-        lag_summary = f"  Strongest: lag={best_lag}, r={lags[best_lag]:.4f}"
-
-    prompt = f"""당신은 보험사 CX 분석 전문가입니다.
-아래 데이터를 바탕으로 {week_label} MetLife CX 주간 리포트를 작성해주세요.
+    return f"""당신은 손해보험사 데이터 분석가입니다.
+아래 데이터를 바탕으로 {week_label} {TARGET_KR} CX 주간 리포트를 작성하세요.
 
 지침:
-- 한국어로 작성
-- 간결하고 실무적인 톤
-- 인과 관계를 단정하지 않고 "패턴이 관찰됨", "연관 가능성" 등의 표현 사용
-- 원인 후보가 있을 경우 콘텐츠/뉴스/캠페인/기타 중 명시
-- 5개 섹션 구조 유지
+- 한국어, 간결하고 실무적인 톤, 1페이지 분량
+- 모든 수치 옆의 시그널 태그를 리포트에 그대로 유지: [통계 검증 ✓] [cluster 시그널] [정성 시그널]
+- [통계 검증 ✓]만 단정 표현 허용. 나머지는 "패턴 관찰", "연관 가능성" 표현
+- 인과 관계 단정 금지. 원인 후보는 콘텐츠/뉴스/캠페인/시즌/기타로 구분
+- 대표 VoC 인용은 어휘 변형 없이 그대로
+- 6개 섹션 구조 유지
 
-=== business_context  ===
-MetLife Korea는 프로지점제(설계사 중심 유통) + 변액/달러보험(니치 고가 상품) 중심의 사업 구조.
-국내 대형사(삼성/한화/교보)와 달리 대중 시장 도달(reach)보다 기존 고객 유지(retention)와
-설계사 지원용 전문성 콘텐츠가 구조적으로 적합.
-SoV 5.2%는 브랜딩 실패가 아닌 사업 모델 반영.
-리포트 작성 시 이 맥락을 반영하여, 검색 SoV 확대보다 콘텐츠 효율(content efficiency)과
-360Health/360Future 등 기존 고객 서비스와의 연결 관점에서 해석해주세요.
+=== Business Context ===
+{BUSINESS_CONTEXT}
+
+=== 데이터 ===
 
 [1. 브랜드 검색 관심도]
-{search_summary}
+{fmt_search(d)}
 
-[2. VoC 감성 동향]
-{sentiment_summary if sentiment_summary else "해당 주 데이터 부족"}
+[2. 공식 콘텐츠 성과]
+{fmt_content(d)}
 
-[3. 이상 이벤트]
-{anomaly_summary}
+[3. VoC 카테고리 구성 — 경쟁사 대비 (브랜드×카테고리 비중 검정)]
+{fmt_cat_test(d)}
 
-[4. Lead-Lag 참고 신호]
-{lag_summary if lag_summary else "분석 중"}
+[4. VoC 감성]
+{fmt_sentiment(d)}
+
+[5. 대표 VoC]
+{fmt_reps(d)}
+
+[6. 이상 이벤트 (최근 4주)]
+{fmt_anomalies(d)}
+
+[7. Lead-Lag 참고]
+{fmt_lag(d)}
 
 === 출력 형식 ===
 
-MetLife CX Weekly Report — {week_label}
+{TARGET_KR} CX Weekly Report — {week_label}
 
-1. 콘텐츠 성과 요약
-   (게시 건수, 유형별 분포, 주요 성과 콘텐츠)
-
-2. 브랜드 검색 관심도
-   (MetLife 검색 변화, 경쟁사 대비 SoV, 변화 원인 후보)
-
-3. VoC 감성 동향
-   (긍정/중립/부정 비율, 주요 키워드)
-
-4. 이상 이벤트
-   (있을 경우만 기술)
-
-5. 참고 신호
-   (lead-lag 패턴, 데이터 한계 명시)
+1. 핵심 요약 (3줄 이내)
+2. 브랜드 검색 관심도 (SoV·WoW, 경쟁사 대비, 원인 후보)
+3. VoC 구성·감성 (카테고리 과대/과소 인덱싱 해석, 감성 비율)
+4. 대표 고객 목소리 (부정 우선, 원문 인용)
+5. 이상 이벤트
+6. 참고 신호·데이터 한계 (lead-lag, 표본, 수집 편향 단서)
 """
 
-    return prompt
 
+# ============================================================
+# LLM + PDF
+# ============================================================
 
 def generate_narrative(prompt):
-    """Call Claude Sonnet to generate report narrative."""
-    try:
-        import anthropic
-    except ImportError:
-        print("[ERROR] anthropic not installed")
-        return None
-
-    if not ANTHROPIC_API_KEY:
-        print("[ERROR] ANTHROPIC_API_KEY not set")
-        return None
-
+    import anthropic
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-
-    response = client.messages.create(
-        model=LLM_MODEL_REPORT,
-        max_tokens=2000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return response.content[0].text
+    resp = client.messages.create(model=LLM_MODEL_REPORT, max_tokens=2500,
+                                  messages=[{"role": "user", "content": prompt}])
+    return resp.content[0].text
 
 
-# ============================================================
-# PDF generation
-# ============================================================
-
-def generate_pdf(narrative, week_label, brand, output_dir="data/exports"):
-    """Generate 1-page PDF report using ReportLab."""
+def generate_pdf(narrative, week_label, output_dir="data/exports"):
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import cm
@@ -284,226 +244,103 @@ def generate_pdf(narrative, week_label, brand, output_dir="data/exports"):
     from reportlab.pdfbase.ttfonts import TTFont
 
     os.makedirs(output_dir, exist_ok=True)
-    filename = f"{output_dir}/cx_weekly_report_{week_label}_{brand}.pdf"
+    filename = f"{output_dir}/cx_weekly_report_{week_label}_{TARGET_BRAND}.pdf"
+    doc = SimpleDocTemplate(filename, pagesize=A4, topMargin=1.5 * cm, bottomMargin=1.5 * cm,
+                            leftMargin=2 * cm, rightMargin=2 * cm)
 
-    doc = SimpleDocTemplate(
-        filename,
-        pagesize=A4,
-        topMargin=1.5 * cm,
-        bottomMargin=1.5 * cm,
-        leftMargin=2 * cm,
-        rightMargin=2 * cm,
-    )
-
-    styles = getSampleStyleSheet()
-
-    # Try to register Korean font
-    korean_font = None
-    font_paths = [
-        "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
-        "/System/Library/Fonts/AppleSDGothicNeo.ttc",
-        "/Library/Fonts/NanumGothic.ttf",
-    ]
-    for fp in font_paths:
+    font = "Helvetica"
+    for fp in ["/System/Library/Fonts/Supplemental/AppleGothic.ttf",
+               "/Library/Fonts/NanumGothic.ttf"]:
         if os.path.exists(fp):
             try:
                 pdfmetrics.registerFont(TTFont("KoreanFont", fp))
-                korean_font = "KoreanFont"
+                font = "KoreanFont"
                 break
             except Exception:
-                continue
+                pass
 
-    base_font = korean_font or "Helvetica"
+    ss = getSampleStyleSheet()
+    st_title = ParagraphStyle("t", parent=ss["Title"], fontName=font, fontSize=15,
+                              textColor=HexColor("#5a4b00"), spaceAfter=4)
+    st_sub = ParagraphStyle("s", parent=ss["Normal"], fontName=font, fontSize=8.5,
+                            textColor=HexColor("#7f8c8d"), spaceAfter=10)
+    st_h = ParagraphStyle("h", parent=ss["Heading2"], fontName=font, fontSize=10.5,
+                          textColor=HexColor("#2c3e50"), spaceBefore=8, spaceAfter=3)
+    st_b = ParagraphStyle("b", parent=ss["Normal"], fontName=font, fontSize=8.5,
+                          leading=13, spaceAfter=5)
+    st_d = ParagraphStyle("d", parent=ss["Normal"], fontName=font, fontSize=7,
+                          textColor=HexColor("#95a5a6"), spaceBefore=10)
 
-    title_style = ParagraphStyle(
-        "ReportTitle",
-        parent=styles["Title"],
-        fontName=base_font,
-        fontSize=16,
-        textColor=HexColor("#1a5276"),
-        spaceAfter=6,
-    )
+    story = [Paragraph(f"{TARGET_KR} CX Weekly Report — {week_label}", st_title),
+             Paragraph(f"Generated {datetime.now():%Y-%m-%d %H:%M} | AI-assisted | "
+                       f"태그: [통계 검증 ✓] 단정 가능 · [cluster 시그널] 패턴 · [정성 시그널] 참고", st_sub),
+             HRFlowable(width="100%", thickness=1, color=HexColor("#5a4b00")), Spacer(1, 4)]
 
-    subtitle_style = ParagraphStyle(
-        "ReportSubtitle",
-        parent=styles["Normal"],
-        fontName=base_font,
-        fontSize=9,
-        textColor=HexColor("#7f8c8d"),
-        spaceAfter=12,
-    )
-
-    heading_style = ParagraphStyle(
-        "SectionHead",
-        parent=styles["Heading2"],
-        fontName=base_font,
-        fontSize=11,
-        textColor=HexColor("#2c3e50"),
-        spaceBefore=10,
-        spaceAfter=4,
-    )
-
-    body_style = ParagraphStyle(
-        "ReportBody",
-        parent=styles["Normal"],
-        fontName=base_font,
-        fontSize=9,
-        leading=14,
-        spaceAfter=6,
-    )
-
-    disclaimer_style = ParagraphStyle(
-        "Disclaimer",
-        parent=styles["Normal"],
-        fontName=base_font,
-        fontSize=7,
-        textColor=HexColor("#95a5a6"),
-        spaceBefore=12,
-    )
-
-    # Build story
-    story = []
-    story.append(Paragraph(f"MetLife CX Weekly Report — {week_label}", title_style))
-    story.append(Paragraph(
-        f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')} | AI-assisted analysis",
-        subtitle_style,
-    ))
-    story.append(HRFlowable(width="100%", thickness=1, color=HexColor("#1a5276")))
-    story.append(Spacer(1, 6))
-
-    # Parse narrative into sections
-    sections = re.split(r"\n(?=\d+\.)", narrative)
-    for section in sections:
-        section = section.strip()
-        if not section:
+    clean = re.sub(r"^#+\s*", "", narrative, flags=re.M).replace("**", "")
+    for sec in re.split(r"\n(?=\d+\.\s)", clean):
+        sec = sec.strip()
+        if not sec:
             continue
+        head, _, body = sec.partition("\n")
+        story.append(Paragraph(head.strip(), st_h if head[0].isdigit() else st_b))
+        if body.strip():
+            story.append(Paragraph(body.strip().replace("\n", "<br/>"), st_b))
 
-        # Try to split heading from body
-        lines = section.split("\n", 1)
-        heading = lines[0].strip()
-        body = lines[1].strip() if len(lines) > 1 else ""
-
-        if heading and heading[0].isdigit():
-            story.append(Paragraph(heading, heading_style))
-        else:
-            story.append(Paragraph(heading, body_style))
-
-        if body:
-            # Replace newlines with <br/> for PDF
-            body_html = body.replace("\n", "<br/>")
-            body_html = body_html.replace("  ", "&nbsp;&nbsp;")
-            story.append(Paragraph(body_html, body_style))
-
-    # Disclaimer
-    story.append(Spacer(1, 12))
-    story.append(HRFlowable(width="100%", thickness=0.5, color=HexColor("#bdc3c7")))
-    story.append(Paragraph(
-        "본 리포트는 공개 데이터 기반 AI 분석 결과이며, 인과 관계를 확정하지 않습니다. "
-        "콘텐츠 유형 변경 시 준법감시 프로세스 리드타임을 고려해주세요.",
-        disclaimer_style,
-    ))
-
+    story += [Spacer(1, 8), HRFlowable(width="100%", thickness=0.5, color=HexColor("#bdc3c7")),
+              Paragraph("본 리포트는 공개 데이터 기반 AI 분석이며 인과 관계를 확정하지 않습니다. "
+                        "브랜드 간 비교는 대칭 수집 서브셋 기준이고, 타겟 브랜드 심층 VoC는 별도 수집분을 포함합니다.", st_d)]
     doc.build(story)
     print(f"PDF generated: {filename}")
     return filename
 
 
-# ============================================================
-# Save to DB
-# ============================================================
-
-def save_report_to_db(brand, week_label, report_data, narrative, pdf_path):
-    """Save report metadata to mart.weekly_report."""
+def save_report(week_label, d, narrative, pdf_path):
+    payload = {"search": d["search"].to_dict(orient="records"),
+               "anomalies": d["anomalies"].to_dict(orient="records"),
+               "lag": d["lag"].get(TARGET_BRAND, {})}
     with get_conn() as conn:
         with conn.cursor() as cur:
-            # Serialize report_data (remove DataFrames)
-            report_json = {
-                "search": report_data["search"].to_dict(orient="records") if not report_data["search"].empty else [],
-                "anomalies": report_data["anomalies"].to_dict(orient="records") if not report_data["anomalies"].empty else [],
-                "lag_results": report_data.get("lag_results", {}),
-            }
-
             cur.execute(
                 """
                 INSERT INTO mart.weekly_report (brand, week_label, report_json, report_text, pdf_path)
                 VALUES (%s, %s, %s::jsonb, %s, %s)
-                ON CONFLICT (brand, week_label)
-                DO UPDATE SET report_json = EXCLUDED.report_json,
-                              report_text = EXCLUDED.report_text,
-                              pdf_path = EXCLUDED.pdf_path,
-                              generated_at = NOW()
+                ON CONFLICT (brand, week_label) DO UPDATE SET
+                    report_json = EXCLUDED.report_json, report_text = EXCLUDED.report_text,
+                    pdf_path = EXCLUDED.pdf_path, generated_at = NOW()
                 """,
-                (
-                    brand, week_label,
-                    json.dumps(report_json, ensure_ascii=False, default=str),
-                    narrative, pdf_path,
-                ),
-            )
-    print(f"Report saved to mart.weekly_report")
+                (TARGET_BRAND, week_label, json.dumps(payload, ensure_ascii=False, default=str),
+                 narrative, pdf_path))
+    print("Report saved to mart.weekly_report")
 
 
 # ============================================================
 # Main
 # ============================================================
 
-def run(week=None, brand="metlife"):
-    print("=" * 70)
-    print("AI Weekly CX Report Generator")
-    print("=" * 70)
-
-    # Determine target week
+def run(week=None):
     if week:
-        year, w = week.split("-W")
-        target_week = datetime.strptime(f"{year}-W{w}-1", "%Y-W%W-%w").date()
+        y, w = week.split("-W")
+        target = datetime.strptime(f"{y}-W{w}-1", "%Y-W%W-%w").date()
     else:
-        target_week = get_latest_week()
-        if not target_week:
-            print("[ERROR] No data in mart tables")
-            return
+        target = get_latest_week()
+    week_label = f"{target.year}-W{target.isocalendar()[1]:02d}"
+    print(f"Target: {TARGET_KR} | Week: {week_label} ({target})")
 
-    week_label = f"{target_week.year}-W{target_week.isocalendar()[1]:02d}"
-    print(f"Target: {brand} | Week: {week_label} ({target_week})")
-
-    # Step 1: Gather data
-    print("\n1. Gathering report data...")
-    data = gather_report_data(target_week, brand)
-
-    # Step 2: Generate narrative
-    print("\n2. Generating AI narrative...")
-    prompt = build_prompt(data)
+    d = gather(target)
+    prompt = build_prompt(d)
     narrative = generate_narrative(prompt)
-
-    if not narrative:
-        print("[ERROR] Failed to generate narrative")
-        return
-
-    print(f"  Narrative generated ({len(narrative)} chars)")
-
-    # Step 3: Generate PDF
-    print("\n3. Generating PDF...")
-    pdf_path = generate_pdf(narrative, week_label, brand)
-
-    # Step 4: Save to DB
-    print("\n4. Saving to database...")
-    save_report_to_db(brand, week_label, data, narrative, pdf_path)
-
-    # Print narrative preview
-    print("\n" + "=" * 70)
-    print("REPORT PREVIEW")
-    print("=" * 70)
+    print(f"Narrative generated ({len(narrative)} chars)")
+    pdf = generate_pdf(narrative, week_label)
+    save_report(week_label, d, narrative, pdf)
+    print("\n" + "=" * 70 + "\nREPORT PREVIEW\n" + "=" * 70)
     print(narrative)
-
-    print(f"\nPhase 5 complete.")
-    print(f"  PDF: {pdf_path}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate weekly CX report")
-    parser.add_argument("--week", default=None, help="Target week (e.g., 2026-W20)")
-    parser.add_argument("--brand", default="metlife", help="Target brand")
-    args = parser.parse_args()
-
-    run(week=args.week, brand=args.brand)
+    p = argparse.ArgumentParser()
+    p.add_argument("--week", default=None, help="e.g. 2026-W44")
+    a = p.parse_args()
+    run(week=a.week)
 
 
 if __name__ == "__main__":

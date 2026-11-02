@@ -45,6 +45,10 @@ POSITIVE_WORDS = {
     "수령": 0.5, "보상": 0.5, "가성비": 0.7, "저렴": 0.6, "합리적": 0.7,
     "빠른": 0.5, "친절": 0.8, "꼼꼼": 0.7, "세심": 0.7, "전문적": 0.7,
     "건강": 0.4, "예방": 0.4, "관리": 0.3,
+
+    # Additional
+    "신속": 0.8, "빠르게": 0.6, "간편": 0.7, "쉽게": 0.5, "지급": 0.5,
+    "처리": 0.3, "접수": 0.3, "할인": 0.6, "저렴": 0.6, "특약": 0.2,
 }
 
 NEGATIVE_WORDS = {
@@ -54,11 +58,18 @@ NEGATIVE_WORDS = {
     "걱정": -0.4, "불안": -0.5, "무섭": -0.5, "힘들": -0.5, "슬프": -0.6,
     "유치": -0.5, "어설프": -0.5,
     # Insurance-specific negative
-    "해지": -0.7, "사기": -1.0, "피해": -0.9, "손해": -0.8, "거절": -0.7,
+    "해지": -0.7, "사기": -1.0, "피해": -0.9, "거절": -0.7,
     "거부": -0.7, "불친절": -0.9, "불투명": -0.8, "비싸": -0.6, "과다": -0.6,
     "거짓": -0.9, "허위": -0.9, "약관": -0.3, "분쟁": -0.8, "민원": -0.7,
     "보험료인상": -0.7, "갱신": -0.4, "부담": -0.5, "강제": -0.8,
     "설계사": -0.2, "전화": -0.2,  # context-dependent, low weight
+
+    # Additional
+    "거절": -0.8, "삭감": -0.9, "부지급": -1.0, "지연": -0.7, "늦": -0.5,
+    "복잡": -0.6, "손해율": -0.3, "인상": -0.6, "갱신거절": -1.0,
+    "면책": -0.5, "약관": -0.2, "분쟁": -0.8, "소송": -0.8,
+    # Revision (손해)
+    "손해봤": -0.8, "손해보는": -0.7, "손해를 보": -0.7, "손해였": -0.8,
 }
 
 NEGATION_WORDS = {"안", "못", "없", "아닌", "아니", "않", "절대"}
@@ -225,7 +236,7 @@ def run(threshold=0.3, dict_only=False):
     print(f"Sentiment analysis target: {len(df)} documents")
 
     # Layer 1: Dictionary scoring
-    print("\nLayer 1: Dictionary sentiment...")
+    print("\nLayer 1: Dictionary sentiment")
     dict_results = []
     for _, row in df.iterrows():
         score, confidence, matched = dict_sentiment(row["text_clean"])
@@ -249,7 +260,7 @@ def run(threshold=0.3, dict_only=False):
 
     # Layer 2: Haiku for low-confidence cases
     if not dict_only and len(low_conf) > 0:
-        print(f"\nLayer 2: Claude Haiku for {len(low_conf)} ambiguous docs...")
+        print(f"\nLayer 2: Claude Haiku for {len(low_conf)} ambiguous docs")
         low_conf_texts = df[df["id"].isin(low_conf["id"])]["text_clean"].tolist()
 
         haiku_results = call_haiku_batch(low_conf_texts, batch_size=20)
