@@ -270,7 +270,7 @@ def extract_representatives(n_per_cell=3, min_len=40, max_len=220):
               AND LENGTH(text_clean) BETWEEN %s AND %s
             """, conn, params=(min_len, max_len))
 
-    ad_markers = r"변호사|법무법인|무료상담|손해사정사|연락처|문의주세요|상담신청|바로가기|\d{2,3}-\d{3,4}-\d{4}"
+    ad_markers = r"변호사|법무법인|무료상담|손해사정사|연락처|문의주세요|상담신청|바로가기|기자|뉴스|보도|\d{2,3}-\d{3,4}-\d{4}"
     df = df[~df["text_clean"].str.contains(ad_markers, regex=True, na=False)]
 
     df["abs_score"] = df["sentiment_score"].abs()

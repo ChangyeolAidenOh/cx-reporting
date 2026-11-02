@@ -242,6 +242,7 @@ def generate_pdf(narrative, week_label, output_dir="data/exports"):
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
+    from report.pdf_md import md_to_flowables
 
     os.makedirs(output_dir, exist_ok=True)
     filename = f"{output_dir}/cx_weekly_report_{week_label}_{TARGET_BRAND}.pdf"
@@ -276,15 +277,11 @@ def generate_pdf(narrative, week_label, output_dir="data/exports"):
                        f"태그: [통계 검증 ✓] 단정 가능 · [cluster 시그널] 패턴 · [정성 시그널] 참고", st_sub),
              HRFlowable(width="100%", thickness=1, color=HexColor("#5a4b00")), Spacer(1, 4)]
 
-    clean = re.sub(r"^#+\s*", "", narrative, flags=re.M).replace("**", "")
-    for sec in re.split(r"\n(?=\d+\.\s)", clean):
-        sec = sec.strip()
-        if not sec:
-            continue
-        head, _, body = sec.partition("\n")
-        story.append(Paragraph(head.strip(), st_h if head[0].isdigit() else st_b))
-        if body.strip():
-            story.append(Paragraph(body.strip().replace("\n", "<br/>"), st_b))
+    st_q = ParagraphStyle("q", parent=st_b, leftIndent=12, textColor=HexColor("#555555"),
+                          borderColor=HexColor("#cccccc"), borderWidth=0, backColor=HexColor("#fafafa"))
+    # LLM repeats the title as the first H1 — drop it
+    body_md = re.sub(r"^#\s*.*?Weekly Report.*?\n", "", narrative, count=1, flags=re.M)
+    story += md_to_flowables(body_md, font, {"h": st_h, "body": st_b, "quote": st_q})
 
     story += [Spacer(1, 8), HRFlowable(width="100%", thickness=0.5, color=HexColor("#bdc3c7")),
               Paragraph("본 리포트는 공개 데이터 기반 AI 분석이며 인과 관계를 확정하지 않습니다. "

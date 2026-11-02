@@ -68,5 +68,6 @@ def render():
     f4 = go.Figure(go.Heatmap(z=pivot.values, x=pivot.columns, y=pivot.index.strftime("%m-%d"),
                               colorscale="RdYlGn", zmid=0, text=pivot.round(1).values,
                               texttemplate="%{text}%", textfont={"size": 10}))
-    f4.update_layout(height=350, yaxis=dict(autorange="reversed"))
+    f4.update_layout(height=350, yaxis=dict(autorange="reversed", type="category"),
+                     xaxis=dict(type="category"))
     st.plotly_chart(f4, use_container_width=True)
