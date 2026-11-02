@@ -18,7 +18,7 @@ BRAND_KEYS = list(BRANDS.keys())
 
 def load():
     def rd(p, **kw):
-        return pd.read_csv(p, **kw) if os.path.exists(p) else pd.DataFrame()
+        return pd.read_csv(p, encoding="utf-8-sig", **kw) if os.path.exists(p) else pd.DataFrame()
     matrix = rd("data/exports/content_signal_matrix.csv")
     test = rd("data/exports/brand_category_test.csv")
     perf = rd("data/exports/content_performance.csv", parse_dates=["week_start"])

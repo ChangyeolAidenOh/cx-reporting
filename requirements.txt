@@ -1,7 +1,7 @@
 # Core
 python-dotenv==1.1.0
 psycopg2-binary==2.9.9
-pandas>=2.2.0
+pandas>=2.2.0,<3.0
 numpy>=1.26.0
 
 # NLP

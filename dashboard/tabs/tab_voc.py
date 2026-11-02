@@ -16,7 +16,7 @@ SENT_COLORS = {"positive": "#2ecc71", "neutral": "#95a5a6", "negative": "#e74c3c
 
 def load():
     def rd(p, **kw):
-        return pd.read_csv(p, **kw) if os.path.exists(p) else pd.DataFrame()
+        return pd.read_csv(p, encoding="utf-8-sig", **kw) if os.path.exists(p) else pd.DataFrame()
     return (rd("data/exports/voc_sentiment.csv", parse_dates=["week_start"]),
             rd("data/processed/sentiment_results.csv"),
             rd("data/exports/content_enriched.csv"),

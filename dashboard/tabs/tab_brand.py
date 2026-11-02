@@ -17,7 +17,7 @@ BRAND_ORDER = [v["name_kr"] for v in BRANDS.values()]
 
 def load_data():
     p = "data/exports/brand_search_weekly.csv"
-    return pd.read_csv(p, parse_dates=["week_start"]) if os.path.exists(p) else pd.DataFrame()
+    return pd.read_csv(p, parse_dates=["week_start"], encoding="utf-8-sig") if os.path.exists(p) else pd.DataFrame()
 
 
 def render():
