@@ -15,13 +15,6 @@ build/
 .vscode/
 *.swp
 
-# Data
-data/raw/*
-data/processed/*
-!data/exports/
-!data/raw/.gitkeep
-!data/processed/.gitkeep
-
 # OS
 .DS_Store
 Thumbs.db
@@ -29,7 +22,13 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 
-# Models (547MB, regenerate via: python -m analysis.topic_modeling)
-models/
+# Data: raw/processed stay local; exports are the Streamlit Cloud fallback -> tracked
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Models: BERTopic pickle (547MB) stays local; models/serve/ (classifier + safetensors) is committed
+models/*
+!models/serve/
 *.pkl
-*.joblib

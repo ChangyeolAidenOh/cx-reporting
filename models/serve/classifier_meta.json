@@ -1,0 +1,46 @@
+{
+  "embedding_model": "jhgan/ko-sroberta-multitask",
+  "classifier": "knn10",
+  "target": "category",
+  "n_train": 12238,
+  "classes": [
+    "noise",
+    "보험금 청구·보상",
+    "브랜드 캠페인",
+    "상품 설계·고객후기",
+    "실손·건강보험",
+    "이벤트·프로모션",
+    "자동차보험"
+  ],
+  "cv_acc": 0.9627,
+  "acc_at_coverage": {
+    "0.5": {
+      "coverage": 0.9759,
+      "accuracy": 0.9751
+    },
+    "0.6": {
+      "coverage": 0.9389,
+      "accuracy": 0.9875
+    },
+    "0.7": {
+      "coverage": 0.8986,
+      "accuracy": 0.9937
+    },
+    "0.8": {
+      "coverage": 0.8515,
+      "accuracy": 0.9962
+    }
+  },
+  "outlier_recall": {
+    "0.5": 0.143,
+    "0.6": 0.2867,
+    "0.7": 0.406,
+    "0.8": 0.5343
+  },
+  "all_cv_acc": {
+    "knn5": 0.9619,
+    "knn10": 0.9627,
+    "knn20": 0.9575,
+    "logreg": 0.9189
+  }
+}

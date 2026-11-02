@@ -1,0 +1,27 @@
+{
+  "embedding_model": "jhgan/ko-sroberta-multitask",
+  "models": {
+    "stage1": {
+      "path": "models/serve/stage1",
+      "parent_topic": null,
+      "offset": null,
+      "n_topics": 59,
+      "size_mb": 1.05
+    },
+    "stage2_0": {
+      "path": "models/serve/stage2_0",
+      "parent_topic": 0,
+      "offset": 100,
+      "n_topics": 10,
+      "size_mb": 0.18
+    },
+    "stage2_100": {
+      "path": "models/serve/stage2_100",
+      "parent_topic": 100,
+      "offset": 200,
+      "n_topics": 15,
+      "size_mb": 0.19
+    }
+  },
+  "outlier_reassign_threshold": 0.65
+}
