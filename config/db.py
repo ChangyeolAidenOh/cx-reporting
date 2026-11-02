@@ -2,10 +2,11 @@
 
 import os
 from contextlib import contextmanager
+from dotenv import load_dotenv
+load_dotenv()
 
 try:
     import psycopg2
-    import psycopg2.extras
     HAS_PSYCOPG2 = True
 except ImportError:
     HAS_PSYCOPG2 = False
@@ -15,25 +16,25 @@ def _use_csv_fallback():
     return os.getenv("USE_CSV_FALLBACK", "false").lower() == "true"
 
 
+def _dsn():
+    """Supabase (prod) if SUPABASE_DB_URL is set, else local Docker (dev)."""
+    url = os.getenv("SUPABASE_DB_URL")
+    if url:
+        return url
+    return (
+        f"host={os.getenv('DB_HOST', 'localhost')} "
+        f"port={os.getenv('DB_PORT', '5438')} "
+        f"dbname={os.getenv('DB_NAME', 'cx_monitor')} "
+        f"user={os.getenv('DB_USER', 'cx_admin')} "
+        f"password={os.getenv('DB_PASSWORD', 'cx_secret')}"
+    )
+
+
 @contextmanager
 def get_conn():
-    """Context manager for PostgreSQL connection.
-
-    Usage:
-        with get_conn() as conn:
-            with conn.cursor() as cur:
-                cur.execute("SELECT ...")
-    """
     if not HAS_PSYCOPG2:
         raise ImportError("psycopg2 not installed. Set USE_CSV_FALLBACK=true for Streamlit Cloud.")
-
-    conn = psycopg2.connect(
-        host=os.getenv("DB_HOST", "localhost"),
-        port=int(os.getenv("DB_PORT", "5438")),
-        dbname=os.getenv("DB_NAME", "cx_monitor"),
-        user=os.getenv("DB_USER", "cx_admin"),
-        password=os.getenv("DB_PASSWORD", "cx_secret"),
-    )
+    conn = psycopg2.connect(_dsn())
     try:
         yield conn
         conn.commit()
