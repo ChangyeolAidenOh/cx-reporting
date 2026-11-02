@@ -34,3 +34,7 @@ Thumbs.db
 models/
 *.pkl
 *.joblib
+
+models/
+!models/serve/
+!models/serve/**

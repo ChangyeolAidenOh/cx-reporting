@@ -35,7 +35,8 @@ def run():
         with conn.cursor() as cur:
             for topic_id, category in TOPIC_CATEGORY.items():
                 cur.execute(
-                    "UPDATE staging.content_enriched SET topic_label = %s WHERE topic_id = %s",
+                    "UPDATE staging.content_enriched SET topic_label = %s "
+                    "WHERE topic_id = %s AND COALESCE(label_source, 'mapping') = 'mapping'",
                     (category, topic_id),
                 )
 
