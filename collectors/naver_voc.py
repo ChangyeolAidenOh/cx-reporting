@@ -146,6 +146,7 @@ def save_to_db(items):
                     INSERT INTO raw.naver_voc
                         (source, title, description, link, blogger_name, postdate, brand, query)
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (link) DO NOTHING
                     """,
                     (item["source"], item["title"], item["description"], item["link"],
                      item["blogger_name"], item["postdate"], item["brand"], item["query"]),

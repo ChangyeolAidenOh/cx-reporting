@@ -1,22 +1,23 @@
 ﻿brand,topic_label,avg_engagement,search_signal,quadrant,sample_count,signal_tag
-db,브랜드 캠페인,63426.47,0.388,high-high,30,cluster 시그널
+db,브랜드 캠페인,62034.19,0.5736,high-high,31,cluster 시그널
 db,상품 설계·고객후기,4214.88,-1.299,high-low,8,cluster 시그널
-db,이벤트·프로모션,25915.87,0.2675,high-high,31,cluster 시그널
-hyundai,브랜드 캠페인,30662.5,1.6597,high-high,60,cluster 시그널
+db,이벤트·프로모션,25198.19,0.4469,high-high,32,cluster 시그널
+hyundai,브랜드 캠페인,30870.82,1.7676,high-high,60,cluster 시그널
 hyundai,상품 설계·고객후기,464.75,11.9393,high-high,4,cluster 시그널
 hyundai,실손·건강보험,3967.0,3.4456,high-high,2,cluster 시그널
-hyundai,이벤트·프로모션,13043.04,3.1507,high-high,28,cluster 시그널
-kb,보험금 청구·보상,823.0,0.0,high-low,1,cluster 시그널
-kb,브랜드 캠페인,21197.8,0.6508,high-high,25,cluster 시그널
-kb,상품 설계·고객후기,3184.0,-1.597,high-low,2,cluster 시그널
+hyundai,이벤트·프로모션,13043.07,3.1507,high-high,28,cluster 시그널
+kb,보험금 청구·보상,841.0,0.0,high-low,1,cluster 시그널
+kb,브랜드 캠페인,20870.81,0.9763,high-high,26,cluster 시그널
+kb,상품 설계·고객후기,3238.0,-1.597,high-low,2,cluster 시그널
 kb,실손·건강보험,297.0,-7.7656,high-low,2,cluster 시그널
-kb,이벤트·프로모션,7691.52,0.2105,high-high,21,cluster 시그널
+kb,이벤트·프로모션,8888.05,0.2105,high-high,22,cluster 시그널
 kb,자동차보험,1430.0,9.9745,high-high,1,cluster 시그널
 meritz,브랜드 캠페인,95.88,20.9053,low-high,8,cluster 시그널
 meritz,상품 설계·고객후기,72.0,11.052,low-high,2,cluster 시그널
 meritz,이벤트·프로모션,93.5,0.0,low-low,8,cluster 시그널
 meritz,자동차보험,119.0,0.0,high-low,1,cluster 시그널
 samsung_fire,보험금 청구·보상,847.0,22.1787,high-high,2,cluster 시그널
-samsung_fire,브랜드 캠페인,4365.87,0.1031,high-high,30,cluster 시그널
-samsung_fire,상품 설계·고객후기,443.57,3.6717,high-high,7,cluster 시그널
-samsung_fire,이벤트·프로모션,6150.48,0.9906,high-high,40,cluster 시그널
+samsung_fire,브랜드 캠페인,4388.27,0.3338,high-high,30,cluster 시그널
+samsung_fire,상품 설계·고객후기,296.0,5.1924,high-high,6,cluster 시그널
+samsung_fire,이벤트·프로모션,6156.22,1.1622,high-high,40,cluster 시그널
+samsung_fire,자동차보험,1330.0,1.2368,high-high,1,cluster 시그널

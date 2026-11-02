@@ -1,0 +1,124 @@
+{
+  "week_label": "2026-W44",
+  "snapshot": {
+    "week_label": "2026-W44",
+    "sov": {
+      "hyundai": {
+        "sov": 22.76,
+        "wow": 2.95,
+        "rank": 1
+      },
+      "samsung_fire": {
+        "sov": 22.69,
+        "wow": 3.27,
+        "rank": 2
+      },
+      "kb": {
+        "sov": 21.42,
+        "wow": 9.52,
+        "rank": 3
+      },
+      "db": {
+        "sov": 20.45,
+        "wow": -6.69,
+        "rank": 4
+      },
+      "meritz": {
+        "sov": 12.67,
+        "wow": 11.87,
+        "rank": 5
+      }
+    },
+    "cat_index": {
+      "보험금 청구·보상": {
+        "ratio": 4.77,
+        "significant": true
+      },
+      "브랜드 캠페인": {
+        "ratio": 0.65,
+        "significant": true
+      },
+      "상품 설계·고객후기": {
+        "ratio": 1.11,
+        "significant": false
+      },
+      "실손·건강보험": {
+        "ratio": 1.8,
+        "significant": true
+      },
+      "이벤트·프로모션": {
+        "ratio": 1.17,
+        "significant": false
+      },
+      "자동차보험": {
+        "ratio": 2.89,
+        "significant": true
+      }
+    },
+    "sentiment": {
+      "positive": 0.4422,
+      "neutral": 0.4766,
+      "negative": 0.0812,
+      "n": 1137
+    },
+    "anomalies": [
+      {
+        "brand": "kb",
+        "date": "2026-10-05",
+        "z": -2.94,
+        "methods": 2
+      },
+      {
+        "brand": "meritz",
+        "date": "2026-10-05",
+        "z": -2.59,
+        "methods": 2
+      }
+    ],
+    "representatives": {
+      "보험금 청구·보상": [
+        19770,
+        20212,
+        20157
+      ],
+      "브랜드 캠페인": [
+        21741,
+        21946,
+        21548
+      ],
+      "상품 설계·고객후기": [
+        20151,
+        19456,
+        17857
+      ],
+      "실손·건강보험": [
+        19457,
+        19754,
+        20014
+      ],
+      "이벤트·프로모션": [
+        21297,
+        17420,
+        13652
+      ],
+      "자동차보험": [
+        19498,
+        20190,
+        19702
+      ]
+    },
+    "pipeline": {
+      "new_docs": 1304,
+      "review_rate": 0.2163,
+      "confirmed": 1022,
+      "llm_share": 0.0,
+      "total_docs": 14899,
+      "outlier_rate_total": 0.11,
+      "review_queue": 282
+    }
+  },
+  "diff": {
+    "first_snapshot": true,
+    "alerts": []
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "started": "2026-11-03T01:54:29.609163",
+  "steps": {
+    "collect": "ok",
+    "new_docs": 1304,
+    "classify": {
+      "n": 1304,
+      "confirmed": 1022,
+      "review": 282,
+      "review_rate": 0.2163,
+      "pred_dist": {
+        "noise": 264,
+        "자동차보험": 258,
+        "상품 설계·고객후기": 235,
+        "실손·건강보험": 123,
+        "이벤트·프로모션": 72,
+        "브랜드 캠페인": 59,
+        "보험금 청구·보상": 11
+      }
+    },
+    "sentiment": {
+      "n": 758,
+      "methods": {
+        "low_conf_dict": 490,
+        "dictionary": 268
+      },
+      "labels": {
+        "neutral": 353,
+        "positive": 318,
+        "negative": 87
+      }
+    }
+  },
+  "finished": "2026-11-03T01:57:46.843210",
+  "week_label": "2026-W44",
+  "alerts": []
+}
