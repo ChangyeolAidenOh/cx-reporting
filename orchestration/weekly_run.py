@@ -192,8 +192,8 @@ def main():
 
     print("\n" + "=" * 60)
     print(f"Done — {week_label} | new {pipeline_stats['new_docs']} | "
-          f"category review {pipeline_stats['review_rate']:.0%} → rescued {pipeline_stats['rescued_by_llm']} "
-          f"→ final review {pipeline_stats['final_review']} | "
+          f"category review {pipeline_stats['review_rate']:.0%} -> rescued {pipeline_stats['rescued_by_llm']} "
+          f"-> final review {pipeline_stats['final_review']} | "
           f"author review {pipeline_stats['author_review_rate']:.0%}, filtered {pipeline_stats['author_filtered']}")
     if diff.get("alerts"):
         print("Alerts (human review needed):")

@@ -10,6 +10,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from config.settings import BRANDS, TARGET_BRAND
+from config.tags import TAG_QUAL
 
 SENT_COLORS = {"positive": "#2ecc71", "neutral": "#95a5a6", "negative": "#e74c3c"}
 
@@ -77,7 +78,7 @@ def render():
 
     st.markdown("---")
     st.subheader("Representative VoC")
-    st.caption("브랜드×카테고리×감성별 대표 문서. 소스 우선순위: YouTube 댓글 → 카페 → 블로그. 광고 마커 제외. [정성 시그널]")
+    st.caption(f"브랜드 x 카테고리 x 감성별 대표 문서. 소스 우선순위: YouTube 댓글 -> 카페 -> 블로그. 광고 마커 제외. [{TAG_QUAL}]")
     if not reps.empty:
         r = reps if sel == "All" else reps[reps["brand"] == sel]
         cat = st.selectbox("Category", ["All"] + sorted(r["topic_label"].unique()), key="rep_cat")

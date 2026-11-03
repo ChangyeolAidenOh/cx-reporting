@@ -12,6 +12,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from config.settings import BRANDS, TARGET_BRAND
+from config.tags import TAG_STAT, TAG_CLUSTER, TAG_QUAL
 
 BRAND_KEYS = list(BRANDS.keys())
 CAT_ORDER = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "태아·어린이보험",
@@ -76,9 +77,8 @@ def render_category_test(test):
     small = n_cell < SMALL_N
     shown = shown.where(~small, shrunk)
     txt = shown.round(2).astype(str)
-    txt = txt.where(~small, "~" + txt)
-    txt = txt + np.where(robust, " ★", np.where(sig, " △", ""))
-    txt = txt.where(note != "n<5", "–")
+    txt = txt + np.where(robust, " 패스", np.where(sig, " 취약", np.where(small, " 소표본", "")))
+    txt = txt.where(note != "n<5", "미검정")
     z = np.log2(shown.values.astype(float))
     z = np.where(note.values == "n<5", np.nan, z)
 
@@ -98,7 +98,7 @@ def render_category_test(test):
             if int(r["n_brand_cat"]) < SMALL_N and np.isfinite(r.get("ratio_shrunk", np.nan)):
                 parts.append(f"shrunk {r['ratio_shrunk']:.2f}x [{r['ratio_ci_low']:.2f}, {r['ratio_ci_high']:.2f}]")
             if r["robust"]:
-                parts.append(f"robust ✓ (LOO {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x)")
+                parts.append(f"robust (LOO {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x)")
             elif r["significant"]:
                 parts.append(f"significant but fragile: drops without {r['loo_fragile_without']}")
             if np.isfinite(r.get("mde_ratio_over", np.nan)):
@@ -113,9 +113,9 @@ def render_category_test(test):
     fig.update_layout(height=400)
     fig.update_yaxes(autorange="reversed")
     st.plotly_chart(fig, use_container_width=True)
-    st.caption("★ 통계 검증 ✓ (Bonferroni 유의 ∧ leave-one-out robust) · △ 유의하지만 특정 경쟁사 제외 시 소실(거울상) · "
-               f"~ n<{SMALL_N} 셀의 수축 추정 · – n<5 미검정. 대칭 수집 서브셋. "
-               "판정 규칙: docs/brand_category_test_rules.md")
+    st.caption(f"패스: {TAG_STAT} (Bonferroni 유의와 leave-one-out robust 모두 통과). 취약: 유의하지만 특정 경쟁사 제외 시 소실(거울상). "
+               f"소표본: n<{SMALL_N} 셀, 수축 추정값 표시. 미검정: n<5. 대칭 수집 서브셋. "
+               "판정 룰: docs/brand_category_test_rules.md")
 
     tgt = s[s["brand"] == TARGET_BRAND]
     name = BRANDS[TARGET_BRAND]["name_kr"]
@@ -123,9 +123,9 @@ def render_category_test(test):
     frag = tgt[tgt["significant"] & ~tgt["robust"]]
     lines = []
     if not rob.empty:
-        lines.append("**통계 검증 ✓** " + " · ".join(f"{r['topic_label']} {r['ratio']:.2f}x" for _, r in rob.iterrows()))
+        lines.append(f"**{TAG_STAT}** " + ", ".join(f"{r['topic_label']} {r['ratio']:.2f}x" for _, r in rob.iterrows()))
     if not frag.empty:
-        lines.append("△ " + " · ".join(f"{r['topic_label']} {r['ratio']:.2f}x ({r['loo_fragile_without']} 제외 시 소실)"
+        lines.append("취약: " + ", ".join(f"{r['topic_label']} {r['ratio']:.2f}x ({r['loo_fragile_without']} 제외 시 소실)"
                                        for _, r in frag.iterrows()))
     if seg == "web_customer":
         und = tgt[~tgt["significant"] & (tgt["note"] == "")]
@@ -133,10 +133,10 @@ def render_category_test(test):
             items = []
             for _, r in und.iterrows():
                 if int(r["n_brand_cat"]) < SMALL_N:
-                    items.append(f"{r['topic_label']} 미확정 (n={int(r['n_brand_cat'])}, ~{r['ratio_shrunk']:.2f}x)")
+                    items.append(f"{r['topic_label']} 미확정 (n={int(r['n_brand_cat'])}, 수축 추정 {r['ratio_shrunk']:.2f}x)")
                 else:
                     items.append(f"{r['topic_label']} {r['ratio']:.2f}x — 검출 범위 {r['mde_ratio_under']:.2f}-{r['mde_ratio_over']:.2f}x 안")
-            lines.append("범위 내·미확정: " + " · ".join(items))
+            lines.append("범위 내, 미확정: " + ", ".join(items))
     if lines:
         st.info(f"{name} ({seg}, n={int(tgt['n_brand'].iloc[0]) if not tgt.empty else 0}):  \n" + "  \n".join(lines))
     else:
@@ -152,7 +152,7 @@ def render():
 
     # --- Signal matrix
     st.subheader("Engagement vs Search Interest Signal Matrix")
-    st.caption("YouTube 댓글 기반 engagement × 게시 익주 검색 WoW. [cluster 시그널] — 인과 아님")
+    st.caption(f"YouTube 댓글 기반 engagement x 게시 익주 검색 WoW. [{TAG_CLUSTER}], 인과 아님")
     if not matrix.empty:
         fig = px.scatter(matrix, x="avg_engagement", y="search_signal", color="brand",
                          size="sample_count", text="topic_label", log_x=True,
@@ -187,7 +187,7 @@ def render():
 
     # --- Lead-lag
     st.subheader("Lead-Lag Cross-Correlation")
-    st.caption("MSTL 잔차 기반. VoC 볼륨 vs 검색 관심도. [정성 시그널] — 작성자 미구분 볼륨, 광고 물량 교란 가능성으로 해석 보류")
+    st.caption(f"MSTL 잔차 기반. VoC 볼륨 vs 검색 관심도. [{TAG_QUAL}], 작성자 미구분 볼륨, 광고 물량 교란 가능성으로 해석 보류")
     if lag:
         b = st.selectbox("Brand", list(lag.keys()), index=list(lag.keys()).index(TARGET_BRAND) if TARGET_BRAND in lag else 0)
         ld = pd.DataFrame([{"lag": int(k), "r": v} for k, v in lag[b].items()]).sort_values("lag")

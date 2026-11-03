@@ -6,7 +6,7 @@ Queries mart tables -> structured prompt with signal-strength tags
 
 Category-composition evidence is read per segment (web_customer / web_advisor /
 youtube) from data/exports/brand_category_test.csv: only cells that are
-Bonferroni-significant AND robust to leave-one-out carry the 통계 검증 tag;
+Bonferroni-significant AND robust to leave-one-out carry the TAG_STAT tag;
 significant-but-fragile cells are cluster signals with the brand whose removal
 kills them; non-significant target cells are reported with their detectable
 range so "no difference" is never over-claimed. Representative quotes are
@@ -31,6 +31,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from config.db import get_conn
 from config.settings import BRANDS, BRAND_KR_TO_KEY, TARGET_BRAND
+from config.tags import TAG_STAT, TAG_CLUSTER, TAG_QUAL, TAG_LOWN
 
 load_dotenv()
 
@@ -56,7 +57,7 @@ VoC는 소스(blog·cafe·youtube_comment)와 작성자(customer·advisor)로 �
 현재까지 확인된 사실: 공개 웹 고객 VoC의 상품 구성에서 {TARGET_KR}은 경쟁사와 구분되지 않고(검출 한계 내),
 현대해상만 태아·어린이보험 집중으로 구분된다. 설계사·비교 콘텐츠는 {TARGET_KR} 자동차보험을 상대적으로 많이 다룬다.
 이 리포트는 데이터 기반 의사결정 지원 목적이므로 모든 수치에 세그먼트와 시그널 강도 태그를 붙이고,
-"통계 검증"은 robust 셀에만 쓰며, 표본이 부족한 셀은 미확정으로 두고 인과 관계는 단정하지 않는다."""
+f"{TAG_STAT}"는 robust 셀에만 쓰며, 표본이 부족한 셀은 미확정으로 두고 인과 관계는 단정하지 않는다."""
 
 
 # ============================================================
@@ -140,7 +141,7 @@ def fmt_search(d):
         key = BRAND_KR_TO_KEY.get(r["brand"], r["brand"])
         mark = " <- TARGET" if key == TARGET_BRAND else ""
         wow = f"{r['wow_change_pct']:+.1f}%" if pd.notna(r["wow_change_pct"]) else "N/A"
-        lines.append(f"  {r['brand']}: SoV {r['sov_pct']:.1f}%, WoW {wow}{mark}  [통계 검증 ✓: 관측값]")
+        lines.append(f"  {r['brand']}: SoV {r['sov_pct']:.1f}%, WoW {wow}{mark}  [{TAG_STAT}: 관측값]")
     return "\n".join(lines)
 
 
@@ -151,7 +152,7 @@ def fmt_content(d):
         return "  해당 주 공식 YouTube 신규 게시 없음"
     r = c.iloc[0]
     return (f"  신규 영상 {int(r['content_count'])}건, 조회 {int(r['total_views']):,}, "
-            f"댓글 {int(r['total_comments'])}, engagement {r['avg_engagement']:.3f}%  [cluster 시그널]")
+            f"댓글 {int(r['total_comments'])}, engagement {r['avg_engagement']:.3f}%  [{TAG_CLUSTER}]")
 
 
 def _num(v):
@@ -178,10 +179,10 @@ def fmt_cat_test(d):
         lines.append(f"  [{seg_kr} — 세그먼트 {seg}, {TARGET_KR} n={n_b}]")
         for _, r in s[s["robust"]].sort_values("ratio", ascending=False).iterrows():
             lines.append(f"    {r['topic_label']}: {r['ratio']:.2f}x ({r['share_brand']:.1%} vs 경쟁사 {r['share_others']:.1%}), "
-                         f"LOO {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x  [통계 검증 ✓]")
+                         f"LOO {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x  [{TAG_STAT}]")
         for _, r in s[s["significant"] & ~s["robust"]].iterrows():
             lines.append(f"    {r['topic_label']}: {r['ratio']:.2f}x — {r['loo_fragile_without']} 제외 시 유의성 소실, "
-                         f"경쟁사 구성의 거울상 가능성  [cluster 시그널]")
+                         f"경쟁사 구성의 거울상 가능성  [{TAG_CLUSTER}]")
         if seg == "web_customer":
             rest = s[~s["significant"]]
             for _, r in rest.iterrows():
@@ -198,9 +199,9 @@ def fmt_cat_test(d):
                 if int(r["n_brand_cat"]) < 30:
                     shr, clo, chi = _num(r.get("ratio_shrunk")), _num(r.get("ratio_ci_low")), _num(r.get("ratio_ci_high"))
                     lines.append(f"    {r['topic_label']}: 관측 {r['ratio']:.2f}x (n={int(r['n_brand_cat'])}), "
-                                 f"수축 추정 {shr:.2f}x [{clo:.2f}, {chi:.2f}], {rng} → 미확정  [표본 부족]")
+                                 f"수축 추정 {shr:.2f}x [{clo:.2f}, {chi:.2f}], {rng}, 미확정  [{TAG_LOWN}]")
                 else:
-                    lines.append(f"    {r['topic_label']}: 관측 {r['ratio']:.2f}x, {rng} 안 → 경쟁사와 차이 없음(범위 내)  [통계 검증 ✓]")
+                    lines.append(f"    {r['topic_label']}: 관측 {r['ratio']:.2f}x, {rng} 안이므로 경쟁사와 차이 없음(범위 내)  [{TAG_STAT}]")
     lines.append("  ※ 대칭 수집 서브셋(타겟 브랜드 상품별 쿼리 제외), 소스×작성자 층화. "
                  "소스를 합친 검정은 YouTube 채널 규모를 반영하므로 인용하지 않는다.")
     return "\n".join(lines)
@@ -214,7 +215,7 @@ def fmt_sentiment(d):
     r = s.iloc[0]
     return (f"  (최근 {int(r['weeks_covered'])}주 롤링) Positive {r['positive_ratio']:.1%}, "
             f"Neutral {r['neutral_ratio']:.1%}, Negative {r['negative_ratio']:.1%}, "
-            f"n={int(r['total_docs'])}  [cluster 시그널: 작성자 미구분 집계]")
+            f"n={int(r['total_docs'])}  [{TAG_CLUSTER}: 작성자 미구분 집계]")
 
 
 def fmt_reps(d, n_neg=3, n_pos=2):
@@ -227,7 +228,7 @@ def fmt_reps(d, n_neg=3, n_pos=2):
     for _, r in reps[reps["sentiment_label"] == "positive"].head(n_pos).iterrows():
         out.append(f"  [긍정·{r['topic_label']}·{r['source']}] \"{r['text_clean'][:110]}\"")
     out.append("  ※ 상품·여정 카테고리의 고객 작성 글만 (설계사·비교 콘텐츠, 캠페인·이벤트 댓글 제외). "
-               "원문 어휘 그대로 인용 가능  [정성 시그널]")
+               f"원문 어휘 그대로 인용 가능  [{TAG_QUAL}]")
     return "\n".join(out)
 
 
@@ -237,7 +238,7 @@ def fmt_anomalies(d):
     if a.empty:
         return "  없음"
     return "\n".join(f"  {r['detected_date']}: {r['metric']}={r['value']:.1f} "
-                     f"(z={r['zscore']:+.2f}, {int(r['methods_agreed'])}/3 methods)  [통계 검증 ✓]"
+                     f"(z={r['zscore']:+.2f}, {int(r['methods_agreed'])}/3 methods)  [{TAG_STAT}]"
                      for _, r in a.iterrows())
 
 
@@ -246,7 +247,7 @@ def fmt_lag(d):
     if not lags:
         return "  분석 중"
     best = max(lags, key=lambda k: abs(lags[k]))
-    return (f"  최강 시차 lag={int(best):+d}주, r={lags[best]:+.3f}  [정성 시그널: 전체 VoC 볼륨 기반, "
+    return (f"  최강 시차 lag={int(best):+d}주, r={lags[best]:+.3f}  [{TAG_QUAL}: 전체 VoC 볼륨 기반, "
             f"설계사 콘텐츠·광고 물량 교란 가능성 있어 해석 보류]")
 
 
@@ -261,19 +262,19 @@ def fmt_changes(d):
     out = []
     for s in diff.get("sov", []):
         if "rank" in s:
-            out.append(f"  SoV 순위 변동: {KEY_TO_KR.get(s['brand'], s['brand'])} {s['rank'][0]}위→{s['rank'][1]}위 "
-                       f"({s['sov'][0]}%→{s['sov'][1]}%)  [통계 검증 ✓: 관측값]")
+            out.append(f"  SoV 순위 변동: {KEY_TO_KR.get(s['brand'], s['brand'])} {s['rank'][0]}위->{s['rank'][1]}위 "
+                       f"({s['sov'][0]}%->{s['sov'][1]}%)  [{TAG_STAT}: 관측값]")
         else:
-            out.append(f"  SoV 변동: {KEY_TO_KR.get(s['brand'], s['brand'])} {s['sov'][0]}%→{s['sov'][1]}%  [통계 검증 ✓: 관측값]")
+            out.append(f"  SoV 변동: {KEY_TO_KR.get(s['brand'], s['brand'])} {s['sov'][0]}%->{s['sov'][1]}%  [{TAG_STAT}: 관측값]")
     for c in diff.get("cat_index", []):
         tag = "유의성 전환" if c["flip"] else "비중 변화"
         seg = f" ({c['segment']})" if c.get("segment") else ""
-        out.append(f"  {tag}{seg}: {c['category']} {c['ratio'][0]:.2f}x→{c['ratio'][1]:.2f}x  [cluster 시그널: 재검토 필요]")
+        out.append(f"  {tag}{seg}: {c['category']} {c['ratio'][0]:.2f}x->{c['ratio'][1]:.2f}x  [{TAG_CLUSTER}: 재검토 필요]")
     sd = diff.get("sentiment", {})
     if sd:
-        out.append(f"  감성 변화: positive {sd.get('positive', 0):+.1f}pp, negative {sd.get('negative', 0):+.1f}pp  [cluster 시그널]")
+        out.append(f"  감성 변화: positive {sd.get('positive', 0):+.1f}pp, negative {sd.get('negative', 0):+.1f}pp  [{TAG_CLUSTER}]")
     for a in diff.get("new_anomalies", []):
-        out.append(f"  신규 이상 이벤트: {KEY_TO_KR.get(a['brand'], a['brand'])} {a['date']} z={a['z']:+.2f}  [통계 검증 ✓]")
+        out.append(f"  신규 이상 이벤트: {KEY_TO_KR.get(a['brand'], a['brand'])} {a['date']} z={a['z']:+.2f}  [{TAG_STAT}]")
     for al in diff.get("alerts", []):
         out.append(f"  ⚠ 알림: {al}")
     return "\n".join(out) if out else "  유의미한 변화 없음"
@@ -286,8 +287,8 @@ def build_prompt(d):
 
 지침:
 - 한국어, 간결하고 실무적인 톤, 1페이지 분량
-- 모든 수치 옆의 시그널 태그를 리포트에 그대로 유지: [통계 검증 ✓] [cluster 시그널] [정성 시그널] [표본 부족]
-- [통계 검증 ✓]만 단정 표현 허용. 나머지는 "패턴 관찰", "연관 가능성" 표현
+- 모든 수치 옆의 시그널 태그를 리포트에 그대로 유지: [{TAG_STAT}] [{TAG_CLUSTER}] [{TAG_QUAL}] [{TAG_LOWN}]
+- [{TAG_STAT}]만 단정 표현 허용. 나머지는 "패턴 관찰", "연관 가능성" 표현
 - 카테고리 구성은 반드시 세그먼트(web_customer / web_advisor / youtube)를 명시해서 서술
 - "제외 시 유의성 소실"로 표시된 셀은 경쟁사 구성의 거울상이므로 {TARGET_KR}의 특성으로 서술하지 말 것
 - "미확정"으로 표시된 셀은 미확정으로 쓰고, 과대·과소를 단정하지 말 것
@@ -392,7 +393,7 @@ def generate_pdf(narrative, week_label, output_dir="data/exports"):
 
     story = [Paragraph(f"{TARGET_KR} CX Weekly Report — {week_label}", st_title),
              Paragraph(f"Generated {datetime.now():%Y-%m-%d %H:%M} | AI-assisted | "
-                       f"태그: [통계 검증 ✓] 단정 가능 · [cluster 시그널] 패턴 · [정성 시그널] 참고 · [표본 부족] 미확정", st_sub),
+                       f"태그: [{TAG_STAT}] 단정 가능, [{TAG_CLUSTER}] 패턴, [{TAG_QUAL}] 참고, [{TAG_LOWN}] 미확정", st_sub),
              HRFlowable(width="100%", thickness=1, color=HexColor("#5a4b00")), Spacer(1, 4)]
 
     body_md = re.sub(r"^#\s*.*?Weekly Report.*?\n", "", narrative, count=1, flags=re.M)
@@ -401,7 +402,7 @@ def generate_pdf(narrative, week_label, output_dir="data/exports"):
     story += [Spacer(1, 8), HRFlowable(width="100%", thickness=0.5, color=HexColor("#bdc3c7")),
               Paragraph("본 리포트는 공개 데이터 기반 AI 분석이며 인과 관계를 확정하지 않습니다. "
                         "브랜드 간 비교는 소스·작성자로 층화한 세그먼트의 대칭 수집 서브셋 기준이고, "
-                        "[통계 검증 ✓]는 Bonferroni 유의와 leave-one-out 강건성을 모두 통과한 셀에만 붙습니다. "
+                        f"[{TAG_STAT}]는 Bonferroni 유의와 leave-one-out 강건성을 모두 통과한 셀에만 붙습니다. "
                         f"대상 주는 종료 후 {SETTLE_DAYS}일 이상 경과한 확정 주입니다.", st_d)]
     doc.build(story)
     print(f"PDF generated: {filename}")

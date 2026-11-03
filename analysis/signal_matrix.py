@@ -24,14 +24,10 @@ import pandas as pd
 from scipy import stats
 from config.db import get_conn
 from config.settings import BRANDS, BRAND_KR_TO_KEY, TARGET_BRAND
+from config.tags import TAG_STAT, TAG_CLUSTER, TAG_QUAL
 
 EXPORT_DIR = "data/exports"
 os.makedirs(EXPORT_DIR, exist_ok=True)
-
-# Signal strength tags (adopted from prior VoC brief methodology)
-TAG_STAT = "통계 검증 ✓"
-TAG_CLUSTER = "cluster 시그널"
-TAG_QUAL = "정성 시그널"
 
 
 # ============================================================
@@ -194,7 +190,7 @@ def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all"
         composition (e.g. 76% of its docs in one category) shifts the pool and
         makes every other brand look over/under-indexed on that category.
         robust = significant in all leave-one-out tests; only robust cells get
-        the 통계 검증 tag. loo_fragile_without lists the brands whose removal
+        the TAG_STAT tag. loo_fragile_without lists the brands whose removal
         drops the cell below the threshold; ratio_loo_min/max give the range.
     """
     print("\n" + "=" * 70)

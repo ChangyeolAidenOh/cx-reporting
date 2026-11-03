@@ -1,4 +1,4 @@
-"""Tab 4: Weekly Report — AI 생성 리포트 미리보기 + PDF 다운로드."""
+"""Tab 4: Weekly Report. AI 생성 리포트 미리보기와 PDF 다운로드."""
 
 import os
 import sys
@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 import pandas as pd
 import streamlit as st
 from config.settings import BRANDS, TARGET_BRAND
+from config.tags import TAG_STAT, TAG_CLUSTER, TAG_QUAL, TAG_LOWN
 
 
 def load_pdfs():
@@ -30,7 +31,8 @@ def load_report_text():
 
 def render():
     st.subheader(f"{BRANDS[TARGET_BRAND]['name_kr']} AI Weekly CX Report")
-    st.caption("Claude Sonnet 생성 · 시그널 태그: [통계 검증 ✓] 단정 가능 · [cluster 시그널] 패턴 · [정성 시그널] 참고")
+    st.caption(f"Claude Sonnet 생성. 시그널 태그: [{TAG_STAT}] 단정 가능, [{TAG_CLUSTER}] 패턴, "
+               f"[{TAG_QUAL}] 참고, [{TAG_LOWN}] 미확정")
 
     pdfs = load_pdfs()
     if not pdfs:
