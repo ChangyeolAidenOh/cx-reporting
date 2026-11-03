@@ -20,26 +20,13 @@ Usage:
 """
 
 import sys
-import re
 import argparse
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import pandas as pd
 from config.db import get_conn
-
-BRAND_PATTERNS = {
-    "kb": r"(?<![a-z])kb(?![a-z])|케이비손해",
-    "samsung_fire": r"삼성 ?화재|삼성 ?다이렉트",
-    "db": r"(?<![a-z])db(?![a-z])|디비손해",
-    "hyundai": r"현대 ?해상",
-    "meritz": r"메리츠",
-}
-COMPILED = {b: re.compile(p, flags=re.I) for b, p in BRAND_PATTERNS.items()}
-
-
-def mentioned(title):
-    return [b for b, rx in COMPILED.items() if rx.search(title)]
+from analysis.brand_rules import mentioned
 
 
 def load():

@@ -1,0 +1,117 @@
+{
+  "embedding_model": "jhgan/ko-sroberta-multitask",
+  "classifier": "knn20_src",
+  "target": "author_type",
+  "classes": [
+    "advisor",
+    "customer",
+    "unrelated"
+  ],
+  "media_merged_into_advisor": true,
+  "n_train": 8683,
+  "uses_lex": false,
+  "uses_src": true,
+  "lex_patterns": null,
+  "op_threshold": 0.7,
+  "source_thresholds": {
+    "blog": {
+      "customer": 0.8,
+      "advisor": 0.85,
+      "unrelated": 0.8
+    },
+    "cafearticle": {
+      "customer": 0.7,
+      "advisor": 0.7,
+      "unrelated": 0.7
+    }
+  },
+  "per_source": {
+    "blog": {
+      "0.5": {
+        "coverage": 0.9793,
+        "customer_precision": 0.7,
+        "unrelated_precision": 0.9516
+      },
+      "0.6": {
+        "coverage": 0.8776,
+        "customer_precision": 0.7778,
+        "unrelated_precision": 0.9664
+      },
+      "0.7": {
+        "coverage": 0.78,
+        "customer_precision": 0.8649,
+        "unrelated_precision": 0.976
+      },
+      "0.8": {
+        "coverage": 0.6865,
+        "customer_precision": 0.875,
+        "unrelated_precision": 0.9829
+      }
+    },
+    "cafearticle": {
+      "0.5": {
+        "coverage": 0.9758,
+        "customer_precision": 0.831,
+        "unrelated_precision": 0.9613
+      },
+      "0.6": {
+        "coverage": 0.8686,
+        "customer_precision": 0.889,
+        "unrelated_precision": 0.9706
+      },
+      "0.7": {
+        "coverage": 0.7603,
+        "customer_precision": 0.9208,
+        "unrelated_precision": 0.9778
+      },
+      "0.8": {
+        "coverage": 0.6268,
+        "customer_precision": 0.9521,
+        "unrelated_precision": 0.9849
+      }
+    }
+  },
+  "selection": {
+    "metric": "customer_precision@0.7",
+    "min_coverage": 0.7,
+    "precision_tolerance": 0.005
+  },
+  "cv_acc": 0.8636,
+  "at_threshold": {
+    "0.5": {
+      "coverage": 0.9775,
+      "accuracy": 0.8729,
+      "customer_precision": 0.8133,
+      "unrelated_precision": 0.9557,
+      "advisor_precision": 0.7929
+    },
+    "0.6": {
+      "coverage": 0.8731,
+      "accuracy": 0.9115,
+      "customer_precision": 0.8783,
+      "unrelated_precision": 0.9682,
+      "advisor_precision": 0.8458
+    },
+    "0.7": {
+      "coverage": 0.7701,
+      "accuracy": 0.9385,
+      "customer_precision": 0.9184,
+      "unrelated_precision": 0.9768,
+      "advisor_precision": 0.8889
+    },
+    "0.8": {
+      "coverage": 0.6567,
+      "accuracy": 0.9604,
+      "customer_precision": 0.9511,
+      "unrelated_precision": 0.9837,
+      "advisor_precision": 0.9258
+    }
+  },
+  "all_cv_acc": {
+    "knn10": 0.8612,
+    "knn10_src": 0.8658,
+    "knn20_src": 0.8636,
+    "logreg": 0.8845,
+    "logreg_lex_src": 0.8824
+  }
+}

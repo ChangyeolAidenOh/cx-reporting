@@ -26,7 +26,9 @@ from config.db import get_conn
 SOURCE_LABEL = "상품 설계·고객후기"
 NEW_LABEL = "태아·어린이보험"
 LABEL_SOURCE = "rule_fetal"
-PATTERN = r"태아보험|태아 보험|어린이보험|어린이 보험|자녀보험|태아특약|산모특약|태아 ?종합|어린이 ?종합보험"
+PATTERN = (r"태아보험|태아 보험|어린이보험|어린이 보험|자녀보험|자녀 보험|태아특약|산모특약|태아 ?종합|어린이 ?종합보험"
+           r"|아기보험|아기 보험|아이보험|아이 보험|태아실비|다태아|어린이 ?수술비|아이 ?수술비|아기 ?치아보험"
+           r"|아이들? ?종합보험|신생아 ?보험|어린이 ?실비|아이 ?실비|자녀 ?종합보험")
 
 MATCH_SQL = f"""
     topic_label = %s
@@ -50,10 +52,10 @@ def dry_run():
             SELECT COUNT(*) AS n FROM staging.content_enriched
             WHERE topic_label = %s""", conn, params=(NEW_LABEL,))["n"][0]
         advisor_sample = pd.read_sql(f"""
-            SELECT id, brand, LEFT(title, 50) AS title, LEFT(text_clean, 150) AS text
+            SELECT id, brand, author_type, LEFT(title, 50) AS title, LEFT(text_clean, 150) AS text
             FROM staging.content_enriched
-            WHERE {MATCH_SQL} AND author_type = 'advisor'
-            ORDER BY md5(id::text) LIMIT 20""", conn, params=(SOURCE_LABEL, PATTERN))
+            WHERE {MATCH_SQL}
+            ORDER BY md5(id::text) LIMIT 30""", conn, params=(SOURCE_LABEL, PATTERN))
 
     print(f"Docs to relabel {SOURCE_LABEL} -> {NEW_LABEL}: {int(summary['n'].sum())}")
     print(f"Already labeled {NEW_LABEL}: {int(already)}")
@@ -61,9 +63,9 @@ def dry_run():
     print(summary.to_string(index=False))
     print("\nBy brand:")
     print(by_brand.to_string(index=False))
-    print("\nAdvisor sample (20):")
+    print("\nSample (30, all author types):")
     for _, r in advisor_sample.iterrows():
-        print(f"[{r['id']}][{r['brand']}] {r['title']}\n    {r['text']}\n")
+        print(f"[{r['id']}][{r['brand']}][{r['author_type']}] {r['title']}\n    {r['text']}\n")
 
 
 def apply():

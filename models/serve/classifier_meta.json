@@ -2,7 +2,7 @@
   "embedding_model": "jhgan/ko-sroberta-multitask",
   "classifier": "knn10",
   "target": "category",
-  "n_train": 12238,
+  "n_train": 10718,
   "classes": [
     "noise",
     "보험금 청구·보상",
@@ -10,37 +10,48 @@
     "상품 설계·고객후기",
     "실손·건강보험",
     "이벤트·프로모션",
-    "자동차보험"
+    "자동차보험",
+    "태아·어린이보험"
   ],
-  "cv_acc": 0.9627,
+  "train_label_sources": [
+    "mapping",
+    "classifier",
+    "rule_fetal"
+  ],
+  "cv_acc": 0.9558,
+  "selection": {
+    "metric": "acc@0.7",
+    "min_coverage": 0.85,
+    "acc_tolerance": 0.003
+  },
   "acc_at_coverage": {
     "0.5": {
-      "coverage": 0.9759,
-      "accuracy": 0.9751
+      "coverage": 0.9684,
+      "accuracy": 0.9728
     },
     "0.6": {
-      "coverage": 0.9389,
-      "accuracy": 0.9875
+      "coverage": 0.9311,
+      "accuracy": 0.9854
     },
     "0.7": {
-      "coverage": 0.8986,
-      "accuracy": 0.9937
+      "coverage": 0.8921,
+      "accuracy": 0.9924
     },
     "0.8": {
-      "coverage": 0.8515,
-      "accuracy": 0.9962
+      "coverage": 0.8489,
+      "accuracy": 0.9969
     }
   },
   "outlier_recall": {
-    "0.5": 0.143,
-    "0.6": 0.2867,
-    "0.7": 0.406,
-    "0.8": 0.5343
+    "0.5": 0.1444,
+    "0.6": 0.2926,
+    "0.7": 0.4053,
+    "0.8": 0.5446
   },
   "all_cv_acc": {
-    "knn5": 0.9619,
-    "knn10": 0.9627,
-    "knn20": 0.9575,
-    "logreg": 0.9189
+    "knn5": 0.9556,
+    "knn10": 0.9558,
+    "knn20": 0.9511,
+    "logreg": 0.9256
   }
 }

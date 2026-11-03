@@ -1,20 +1,31 @@
-"""Distill topic-category assignments into a serve-time classifier (v2).
+"""Distill topic-category assignments into a serve-time classifier (v3).
 
 Design:
   - Train on non-outlier docs only. Outliers (-1) have no local structure to learn.
-  - Target = 7 business categories (what the pipeline consumes), not 85 topic ids.
-  - Inference returns category + confidence; conf < threshold -> treated as -1
-    (outlier / needs review). We report accuracy@coverage, not just mean accuracy.
-  - Separately measure outlier recall: fraction of true -1 docs that fall below
-    the threshold (they should).
+  - Target = business categories (8 incl. 태아·어린이보험), not topic ids.
+  - Training labels come from the topic mapping, the catch-all relabel and the
+    태아·어린이보험 rule (label_source in mapping/classifier/rule_fetal).
+    Docs set to noise by the author filter are EXCLUDED: that noise means
+    "author is unrelated", not "topic is noise", and the author axis is served
+    by the author classifier. Review/tie-break docs are excluded as well
+    (weaker labels). Incremental docs carry topic_id = -2 (labeled by this
+    classifier or by the weekly rules, never by BERTopic) and are excluded so
+    the model does not train on its own weekly output.
+  - Inference returns category + confidence; conf < threshold -> review.
+    We report accuracy@coverage, not just mean accuracy, and outlier recall.
+  - Model selection uses the operating metric: accuracy among auto-confirmed
+    docs at OP_THRESHOLD, among candidates with coverage >= MIN_COVERAGE
+    (ties -> higher coverage). Overall accuracy is reported but does not pick.
+  - Embeddings come from the shared id-keyed cache (analysis/embedding_cache.py).
 
 Usage:
-    python scripts/build_serve_classifier.py
+    python -m scripts.build_serve_classifier
 """
 
 import sys
 import os
 import json
+import argparse
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -23,38 +34,30 @@ import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
 from sklearn.metrics import confusion_matrix
 from config.db import get_conn
+from analysis.embedding_cache import get_embeddings, EMB_NAME
 
-
-EMB_NAME = "jhgan/ko-sroberta-multitask"
 OUT_DIR = "models/serve"
-EMB_CACHE = f"{OUT_DIR}/train_embeddings.npy"
 THRESHOLDS = [0.5, 0.6, 0.7, 0.8]
+TRAIN_LABEL_SOURCES = ("mapping", "classifier", "rule_fetal")
+OP_THRESHOLD = 0.7      # confidence gate used by orchestration.incremental.classify_new
+MIN_COVERAGE = 0.85     # a candidate must auto-confirm at least this share at OP_THRESHOLD
+ACC_TOLERANCE = 0.003   # candidates within this of the best acc@OP_THRESHOLD tie -> pick higher coverage
 
 
 def load_docs():
     with get_conn() as conn:
         df = pd.read_sql(
-            "SELECT id, text_clean, topic_id, topic_label FROM staging.content_enriched "
-            "WHERE topic_id IS NOT NULL ORDER BY id", conn)
+            """
+            SELECT id, text_clean, topic_id, topic_label, label_source
+            FROM staging.content_enriched
+            WHERE topic_id IS NOT NULL AND topic_id <> -2
+              AND COALESCE(label_source, 'mapping') = ANY(%s)
+            ORDER BY id
+            """, conn, params=(list(TRAIN_LABEL_SOURCES),))
     df["category"] = df["topic_label"]
     return df
-
-
-def embed(texts):
-    if os.path.exists(EMB_CACHE):
-        X = np.load(EMB_CACHE).astype(np.float32)
-        if len(X) == len(texts):
-            print(f"Loaded cached embeddings {X.shape}")
-            return X
-    from sentence_transformers import SentenceTransformer
-    emb = SentenceTransformer(EMB_NAME)
-    X = emb.encode(texts, batch_size=64, show_progress_bar=True, normalize_embeddings=True)
-    os.makedirs(OUT_DIR, exist_ok=True)
-    np.save(EMB_CACHE, X.astype(np.float16))
-    return X.astype(np.float32)
 
 
 def cv_predict(X, y, make_model, n_splits=5):
@@ -82,9 +85,16 @@ def report(name, y, pred, conf, out_conf):
     return acc
 
 
-def run():
+def acc_cov(r, y, t):
+    keep = r["conf"] >= t
+    acc = float((r["pred"][keep] == y[keep]).mean()) if keep.any() else float("nan")
+    return acc, float(keep.mean())
+
+
+def run(force_model=None):
     df = load_docs()
-    X_all = embed(df["text_clean"].tolist())
+    print("Label sources in training set:", df["label_source"].fillna("mapping").value_counts().to_dict())
+    X_all = get_embeddings(df["id"].values, df["text_clean"].tolist())
 
     is_out = df["topic_id"].values == -1
     X, y = X_all[~is_out], df.loc[~is_out, "category"].values
@@ -104,12 +114,21 @@ def run():
     for name, mk in cands.items():
         pred, conf = cv_predict(X, y, mk)
         m_full = mk(); m_full.fit(X, y)
-        out_conf = m_full.predict_proba(X_out).max(1)
+        out_conf = m_full.predict_proba(X_out).max(1) if len(X_out) else np.zeros(0)
         acc = report(name, y, pred, conf, out_conf)
         results[name] = dict(acc=acc, pred=pred, conf=conf, out_conf=out_conf)
 
-    best = max(results, key=lambda n: results[n]["acc"])
-    print(f"\nBest by overall accuracy: {best} ({results[best]['acc']:.1%})")
+    if force_model:
+        best = force_model
+    else:
+        eligible = [n for n in results if acc_cov(results[n], y, OP_THRESHOLD)[1] >= MIN_COVERAGE]
+        pool = eligible or list(results)
+        top_acc = max(acc_cov(results[n], y, OP_THRESHOLD)[0] for n in pool)
+        near = [n for n in pool if acc_cov(results[n], y, OP_THRESHOLD)[0] >= top_acc - ACC_TOLERANCE]
+        best = max(near, key=lambda n: acc_cov(results[n], y, OP_THRESHOLD)[1])
+    a, c = acc_cov(results[best], y, OP_THRESHOLD)
+    print(f"\nSelected: {best} — acc@{OP_THRESHOLD}={a:.1%} at coverage {c:.0%} "
+          f"(overall {results[best]['acc']:.1%})" + ("  [forced]" if force_model else ""))
 
     labels = sorted(set(y))
     cm = confusion_matrix(y, results[best]["pred"], labels=labels)
@@ -123,17 +142,21 @@ def run():
 
     import joblib
     model = cands[best](); model.fit(X, y)
+    os.makedirs(OUT_DIR, exist_ok=True)
     joblib.dump(model, f"{OUT_DIR}/classifier.joblib")
     size = os.path.getsize(f"{OUT_DIR}/classifier.joblib") / 1e6
     r = results[best]
     meta = {
         "embedding_model": EMB_NAME, "classifier": best, "target": "category",
         "n_train": int(len(y)), "classes": labels,
+        "train_label_sources": list(TRAIN_LABEL_SOURCES),
         "cv_acc": round(float(r["acc"]), 4),
+        "selection": {"metric": f"acc@{OP_THRESHOLD}", "min_coverage": MIN_COVERAGE, "acc_tolerance": ACC_TOLERANCE},
         "acc_at_coverage": {str(t): {"coverage": round(float((r["conf"] >= t).mean()), 4),
                                      "accuracy": round(float((r["pred"][r["conf"] >= t] == y[r["conf"] >= t]).mean()), 4)}
                             for t in THRESHOLDS},
-        "outlier_recall": {str(t): round(float((r["out_conf"] < t).mean()), 4) for t in THRESHOLDS},
+        "outlier_recall": {str(t): round(float((r["out_conf"] < t).mean()), 4) if len(r["out_conf"]) else None
+                           for t in THRESHOLDS},
         "all_cv_acc": {n: round(float(v["acc"]), 4) for n, v in results.items()},
     }
     with open(f"{OUT_DIR}/classifier_meta.json", "w", encoding="utf-8") as f:
@@ -142,4 +165,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--model", choices=["knn5", "knn10", "knn20", "logreg"], default=None)
+    args = ap.parse_args()
+    run(force_model=args.model)
