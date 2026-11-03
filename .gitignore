@@ -32,3 +32,5 @@ data/processed/*
 models/*
 !models/serve/
 *.pkl
+
+docs/private/

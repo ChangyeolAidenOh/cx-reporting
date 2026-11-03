@@ -22,7 +22,7 @@ TARGET_KR = BRANDS[TARGET_BRAND]["name_kr"]
 BRAND_ORDER = [v["name_kr"] for v in BRANDS.values()]
 COLORS = {"KB손해보험": "#FFB300", "삼성화재": "#1428A0", "DB손해보험": "#008C3C",
           "현대해상": "#003478", "메리츠화재": "#D52B1E"}
-CAT_ORDER = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "브랜드 캠페인", "이벤트·프로모션"]
+CAT_ORDER = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "태아·어린이보험", "브랜드 캠페인", "이벤트·프로모션"]
 
 
 def fig_sov_trend():

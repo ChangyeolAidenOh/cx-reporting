@@ -2,7 +2,10 @@
 
 Part 1  Engagement vs Search Interest matrix per brand x topic category
 Part 2  Brand x category proportion test (chi-square + Bonferroni-corrected
-        post-hoc z-tests) -> which brands over/under-index on which categories
+        post-hoc z-tests) -> which brands over/under-index on which categories,
+        with per-cell minimum detectable effect (MDE) and a leave-one-out
+        robustness check so that a cell driven by one dominant competitor in
+        the "others" pool is not reported as a brand characteristic
 Part 3  Lead-lag cross-correlation (MSTL residual) content volume vs search
 Part 4  Representative documents per brand x category (for report quotes)
 
@@ -123,18 +126,87 @@ def save_matrix_to_db(matrix_df):
 # Part 2: Brand x Category proportion test
 # ============================================================
 
-def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all"):
-    """Chi-square + Bonferroni post-hoc. author_types: None (all) or list to restrict."""
+def _two_proportion_z(k_b, n_b, k_o, n_o):
+    """Pooled two-proportion z-test. Returns (ratio, z, p)."""
+    p_b, p_o = k_b / n_b, k_o / n_o
+    p_pool = (k_b + k_o) / (n_b + n_o)
+    se = np.sqrt(p_pool * (1 - p_pool) * (1 / n_b + 1 / n_o))
+    z = (p_b - p_o) / se if se > 0 else 0.0
+    pval = 2 * (1 - stats.norm.cdf(abs(z)))
+    ratio = p_b / p_o if p_o > 0 else np.nan
+    return ratio, z, pval
+
+
+def _cell_test(k_b, n_b, k_o, n_o, small):
+    """Cell p-value: z-test for large cells, Fisher exact when the brand cell
+    is small (normal approximation is not reliable there). Returns (ratio, z, p, method)."""
+    ratio, z, p_z = _two_proportion_z(k_b, n_b, k_o, n_o)
+    if small:
+        _, p_f = stats.fisher_exact([[k_b, n_b - k_b], [k_o, n_o - k_o]])
+        return ratio, z, p_f, "fisher"
+    return ratio, z, p_z, "z"
+
+
+def _shrunk_ratio(k_b, n_b, p_o, m=20, level=0.95):
+    """Empirical-Bayes shrinkage of the brand share toward the others' share.
+    Prior Beta(m*p_o, m*(1-p_o)) = m pseudo-docs at the pooled composition, so a
+    1-of-20 cell cannot print as 133x. Returns (ratio_shrunk, ci_low, ci_high)."""
+    if not (0 < p_o < 1):
+        return np.nan, np.nan, np.nan
+    a = k_b + m * p_o
+    b = (n_b - k_b) + m * (1 - p_o)
+    lo, hi = stats.beta.ppf([(1 - level) / 2, 1 - (1 - level) / 2], a, b)
+    return (a / (a + b)) / p_o, lo / p_o, hi / p_o
+
+
+def _n_needed(p_o, n_b, n_o, z_total, target_ratio):
+    """Brand docs needed to detect target_ratio at the current others' share,
+    keeping the current n_others/n_brand proportion."""
+    delta = abs(target_ratio - 1) * p_o
+    if delta <= 0 or not (0 < p_o < 1) or n_b == 0:
+        return np.nan
+    k = n_o / n_b
+    return int(np.ceil((1 + 1 / k) * p_o * (1 - p_o) * z_total ** 2 / delta ** 2))
+
+
+def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all",
+                        min_cell_n=5, min_col_n=30, small_cell_n=30, shrink_m=20, power=0.8):
+    """Chi-square + Bonferroni post-hoc + per-cell MDE + leave-one-out robustness.
+
+    author_types / sources: None (all) or list to restrict the segment.
+    min_col_n: categories with fewer docs than this in the segment are excluded
+        from the test (expected-count assumption of chi-square is not met).
+    min_cell_n: cells with fewer docs than this get ratio/z/p = NaN and are
+        never reported as significant.
+    MDE: smallest brand/others ratio that would reach the Bonferroni threshold
+        with the given power at the observed n_brand, n_others and p_others.
+        A non-significant cell means "no difference beyond
+        [mde_ratio_under, mde_ratio_over]", not "no difference".
+    Small cells (n_brand_cat < small_cell_n): p-value from Fisher exact instead of
+        the z approximation (also inside leave-one-out), and the ratio is reported
+        next to an empirical-Bayes shrunk ratio with a 95% interval (shrink_m
+        pseudo-docs at the others' composition). Shrinkage changes what is
+        displayed, never whether a cell is significant.
+    n_needed_1_5x / n_needed_2x: brand docs required to detect a 1.5x / 2x effect
+        at the current others' share and n proportion -> weekly power watch.
+    Leave-one-out: each significant cell is re-tested with every other brand
+        removed from the "others" pool in turn. One brand with an extreme
+        composition (e.g. 76% of its docs in one category) shifts the pool and
+        makes every other brand look over/under-indexed on that category.
+        robust = significant in all leave-one-out tests; only robust cells get
+        the 통계 검증 tag. loo_fragile_without lists the brands whose removal
+        drops the cell below the threshold; ratio_loo_min/max give the range.
+    """
     print("\n" + "=" * 70)
     print(f"Part 2: Brand x Category Proportion Test — segment: {label}")
     print("=" * 70)
 
     clauses, params = [], []
     if author_types:
-        clauses.append("s.author_type = ANY(%s)");
+        clauses.append("s.author_type = ANY(%s)")
         params.append(author_types)
     if sources:
-        clauses.append("s.source = ANY(%s)");
+        clauses.append("s.source = ANY(%s)")
         params.append(sources)
     extra = (" AND " + " AND ".join(clauses)) if clauses else ""
     with get_conn() as conn:
@@ -149,52 +221,147 @@ def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all"
                   {extra}
                 """, conn, params=params or None)
     print(f"  (symmetric subset, n={len(df)})")
-
-    ct = pd.crosstab(df["brand"], df["topic_label"])
-    chi2, p, dof, _ = stats.chi2_contingency(ct)
     print("  (symmetric subset: target-brand product queries excluded from cross-brand test)")
+
+    ct_full = pd.crosstab(df["brand"], df["topic_label"])
+    col_totals = ct_full.sum(axis=0)
+    sparse_cols = col_totals[col_totals < min_col_n]
+    ct = ct_full.drop(columns=sparse_cols.index)
+    if len(sparse_cols):
+        print(f"  Excluded from test (category n < {min_col_n} in segment): "
+              + ", ".join(f"{c}({int(n)})" for c, n in sparse_cols.items()))
+    print("  Brand n: " + ", ".join(f"{b}={int(n)}" for b, n in ct.sum(axis=1).items()))
+
+    chi2, p, dof, _ = stats.chi2_contingency(ct)
     print(f"\nOmnibus chi-square: chi2={chi2:.1f}, dof={dof}, p={p:.2e}")
 
     n_tests = ct.shape[0] * ct.shape[1]
     alpha_bonf = alpha / n_tests
-    print(f"Post-hoc: {n_tests} cells, Bonferroni alpha = {alpha_bonf:.5f}")
+    z_alpha = stats.norm.ppf(1 - alpha_bonf / 2)
+    z_power = stats.norm.ppf(power)
+    print(f"Post-hoc: {n_tests} cells, Bonferroni alpha = {alpha_bonf:.5f}, MDE power = {power:.0%}")
 
     rows = []
     for brand in ct.index:
-        n_b = ct.loc[brand].sum()
-        n_o = ct.drop(index=brand).values.sum()
+        n_b = int(ct.loc[brand].sum())
+        others = ct.drop(index=brand)
+        n_o = int(others.values.sum())
         for cat in ct.columns:
-            k_b = ct.loc[brand, cat]
-            k_o = ct.drop(index=brand)[cat].sum()
+            k_b = int(ct.loc[brand, cat])
+            k_o = int(others[cat].sum())
             p_b, p_o = k_b / n_b, k_o / n_o
-            p_pool = (k_b + k_o) / (n_b + n_o)
-            se = np.sqrt(p_pool * (1 - p_pool) * (1 / n_b + 1 / n_o))
-            z = (p_b - p_o) / se if se > 0 else 0.0
-            pval = 2 * (1 - stats.norm.cdf(abs(z)))
-            ratio = p_b / p_o if p_o > 0 else np.nan
+
+            se_null = np.sqrt(p_o * (1 - p_o) * (1 / n_b + 1 / n_o)) if 0 < p_o < 1 else np.nan
+            if np.isfinite(se_null) and se_null > 0:
+                delta = (z_alpha + z_power) * se_null
+                mde_over = (p_o + delta) / p_o
+                mde_under = max(p_o - delta, 0.0) / p_o
+            else:
+                mde_over, mde_under = np.nan, np.nan
+
+            tested = k_b >= min_cell_n
+            small = k_b < small_cell_n
+            ratio = z = pval = np.nan
+            p_method = ""
+            significant, robust, note = False, False, ""
+            loo_ratios, loo_fail = [], []
+            if tested:
+                ratio, z, pval, p_method = _cell_test(k_b, n_b, k_o, n_o, small)
+                significant = bool(pval < alpha_bonf)
+                if significant:
+                    for o in others.index:
+                        pool = others.drop(index=o)
+                        n_oo = int(pool.values.sum())
+                        if n_oo == 0:
+                            continue
+                        r_o, _, p_oo, _ = _cell_test(k_b, n_b, int(pool[cat].sum()), n_oo, small)
+                        loo_ratios.append(r_o)
+                        if not (p_oo < alpha_bonf):
+                            loo_fail.append(o)
+                    robust = len(loo_fail) == 0
+            else:
+                note = f"n<{min_cell_n}"
+            r_shr, ci_lo, ci_hi = _shrunk_ratio(k_b, n_b, p_o, m=shrink_m)
+            need_15 = _n_needed(p_o, n_b, n_o, z_alpha + z_power, 1.5)
+            need_20 = _n_needed(p_o, n_b, n_o, z_alpha + z_power, 2.0)
+
             rows.append({
                 "brand": brand, "topic_label": cat,
+                "n_brand_cat": k_b, "n_brand": n_b, "n_others_cat": k_o, "n_others": n_o,
                 "share_brand": round(p_b, 4), "share_others": round(p_o, 4),
-                "ratio": round(ratio, 2), "z": round(z, 2), "p_value": pval,
-                "significant": pval < alpha_bonf,
-                "signal_tag": TAG_STAT if pval < alpha_bonf else TAG_CLUSTER,
+                "ratio": round(ratio, 2) if np.isfinite(ratio) else np.nan,
+                "z": round(z, 2) if np.isfinite(z) else np.nan,
+                "p_value": pval,
+                "p_method": p_method,
+                "ratio_shrunk": round(r_shr, 2) if np.isfinite(r_shr) else np.nan,
+                "ratio_ci_low": round(ci_lo, 2) if np.isfinite(ci_lo) else np.nan,
+                "ratio_ci_high": round(ci_hi, 2) if np.isfinite(ci_hi) else np.nan,
+                "n_needed_1_5x": need_15,
+                "n_needed_2x": need_20,
+                "significant": significant,
+                "robust": robust,
+                "loo_fragile_without": ",".join(loo_fail),
+                "ratio_loo_min": round(min(loo_ratios), 2) if loo_ratios else np.nan,
+                "ratio_loo_max": round(max(loo_ratios), 2) if loo_ratios else np.nan,
+                "mde_ratio_over": round(mde_over, 2) if np.isfinite(mde_over) else np.nan,
+                "mde_ratio_under": round(mde_under, 2) if np.isfinite(mde_under) else np.nan,
+                "signal_tag": TAG_STAT if robust else TAG_CLUSTER,
+                "note": note,
             })
     res = pd.DataFrame(rows)
+    res["segment"] = label
 
-    print(f"\nSignificant over/under-indexing (Bonferroni, alpha={alpha}):")
     sig = res[res["significant"]].sort_values(["brand", "ratio"], ascending=[True, False])
+    print(f"\nSignificant over/under-indexing (Bonferroni, alpha={alpha}): "
+          f"{len(sig)} cells, {int(sig['robust'].sum())} robust to leave-one-out")
     for _, r in sig.iterrows():
         direction = "over" if r["ratio"] > 1 else "under"
         mark = " <- TARGET" if r["brand"] == TARGET_BRAND else ""
+        loo = ("robust" if r["robust"] else f"fragile: drops without {r['loo_fragile_without']}")
+        pm = " (fisher)" if r["p_method"] == "fisher" else ""
         print(f"  {r['brand']:<14} {r['topic_label']:<18} {r['ratio']:>5.2f}x  "
-              f"({r['share_brand']:.1%} vs {r['share_others']:.1%})  z={r['z']:+.1f}  {direction}{mark}")
+              f"({r['share_brand']:.1%} vs {r['share_others']:.1%})  z={r['z']:+.1f}{pm}  {direction}"
+              f"  loo {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x  {loo}{mark}")
+    if sig.empty:
+        print("  (none)")
 
-    res["segment"] = label
-    res["n_brand_cat"] = res.apply(lambda r: int(ct.loc[r["brand"], r["topic_label"]]), axis=1)
+    small_cells = res[(res["note"] == "") & (res["n_brand_cat"] < small_cell_n)]
+    if len(small_cells):
+        print(f"  Small cells (n<{small_cell_n}, Fisher p, shrunk ratio [95% interval]):")
+        for _, r in small_cells.sort_values(["brand", "topic_label"]).iterrows():
+            print(f"    {r['brand']:<14} {r['topic_label']:<18} n={r['n_brand_cat']:>3}  "
+                  f"{r['ratio']:.2f}x -> {r['ratio_shrunk']:.2f}x [{r['ratio_ci_low']:.2f}, {r['ratio_ci_high']:.2f}]")
+
     small = res[res["significant"] & (res["n_brand_cat"] < 30)]
     if len(small):
-        print(f"  ⚠ {len(small)} significant cells have n<30 (unstable): "
+        print(f"  Significant cells with n<30 (unstable): "
               + ", ".join(f"{r['brand']}/{r['topic_label']}({r['n_brand_cat']})" for _, r in small.iterrows()))
+    under_mde = res[res["significant"] & (
+        ((res["ratio"] > 1) & (res["ratio"] < res["mde_ratio_over"]))
+        | ((res["ratio"] < 1) & (res["ratio"] > res["mde_ratio_under"])))]
+    if len(under_mde):
+        print(f"  Significant but below MDE (low power, effect likely overestimated): "
+              + ", ".join(f"{r['brand']}/{r['topic_label']}" for _, r in under_mde.iterrows()))
+    skipped = res[res["note"] != ""]
+    if len(skipped):
+        print(f"  Cells not tested (n<{min_cell_n}): "
+              + ", ".join(f"{r['brand']}/{r['topic_label']}({r['n_brand_cat']})" for _, r in skipped.iterrows()))
+
+    tgt = res[res["brand"] == TARGET_BRAND].sort_values("topic_label")
+    if len(tgt):
+        print(f"\nMinimum detectable effect for {TARGET_BRAND} (n={int(tgt['n_brand'].iloc[0])}):")
+        for _, r in tgt.iterrows():
+            under = f"{r['mde_ratio_under']:.2f}x" if np.isfinite(r["mde_ratio_under"]) and r["mde_ratio_under"] > 0 else "n/a"
+            over = f"{r['mde_ratio_over']:.2f}x" if np.isfinite(r["mde_ratio_over"]) else "n/a"
+            obs = f"{r['ratio']:.2f}x" if np.isfinite(r["ratio"]) else "n/a"
+            print(f"  {r['topic_label']:<18} n={r['n_brand_cat']:>3}  p_others={r['share_others']:.1%}  "
+                  f"observed={obs:>6}  detectable: under {under} / over {over}")
+        print(f"\nPower watch for {TARGET_BRAND}: brand docs needed in segment (now {int(tgt['n_brand'].iloc[0])})")
+        for _, r in tgt.iterrows():
+            n15 = f"{int(r['n_needed_1_5x'])}" if np.isfinite(r["n_needed_1_5x"]) else "n/a"
+            n20 = f"{int(r['n_needed_2x'])}" if np.isfinite(r["n_needed_2x"]) else "n/a"
+            print(f"  {r['topic_label']:<18} for 2x: {n20:>6}   for 1.5x: {n15:>6}")
+
     res.to_csv(f"{EXPORT_DIR}/brand_category_test_{label}.csv", index=False, encoding="utf-8-sig")
     return res
 

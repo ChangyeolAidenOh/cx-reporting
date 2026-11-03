@@ -178,7 +178,7 @@ def llm_tiebreak(batch_size=20):
     import os, re, json as _json
     import anthropic
     from config.settings import BRANDS
-    cats = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기",
+    cats = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "태아·어린이보험",
             "브랜드 캠페인", "이벤트·프로모션", "noise"]
     with get_conn() as conn:
         df = pd.read_sql("SELECT id, text_clean FROM staging.content_enriched "
