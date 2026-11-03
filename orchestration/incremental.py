@@ -172,3 +172,46 @@ def sentiment_new(threshold=0.3, use_llm=True):
              "labels": df["label"].value_counts().to_dict()}
     print(f"[sentiment_new] {stats['n']} docs scored: {stats['methods']}")
     return stats
+
+def llm_tiebreak(batch_size=20):
+    """Second stage for review docs: Haiku picks a category or 'noise'."""
+    import os, re, json as _json
+    import anthropic
+    from config.settings import BRANDS
+    cats = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기",
+            "브랜드 캠페인", "이벤트·프로모션", "noise"]
+    with get_conn() as conn:
+        df = pd.read_sql("SELECT id, text_clean FROM staging.content_enriched "
+                         "WHERE label_source='review' ORDER BY id", conn)
+    if df.empty:
+        print("[llm_tiebreak] nothing to tie-break"); return {"n": 0}
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    model = os.getenv("LLM_MODEL_SENTIMENT", "claude-haiku-4-5-20251001")
+    out = {}
+    for i in range(0, len(df), batch_size):
+        b = df.iloc[i:i+batch_size]
+        block = "\n".join(f"[{j+1}] {t[:300]}" for j, t in enumerate(b["text_clean"]))
+        prompt = (f"손해보험 VoC 분류. 각 텍스트를 다음 중 하나로: {', '.join(cats)}.\n"
+                  "보험과 무관하거나 광고·채용·업무용이면 noise. JSON 배열만 출력: "
+                  '[{"id":1,"category":"..."}]\n\n' + block)
+        try:
+            r = client.messages.create(model=model, max_tokens=800,
+                                       messages=[{"role": "user", "content": prompt}])
+            txt = re.sub(r"```json|```", "", r.content[0].text).strip()
+            for item in _json.loads(txt):
+                k = int(item["id"]) - 1
+                if 0 <= k < len(b) and item.get("category") in cats:
+                    out[int(b.iloc[k]["id"])] = item["category"]
+        except Exception as e:
+            print(f"  [WARN] tiebreak batch error: {e}")
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            for doc_id, cat in out.items():
+                if cat == "noise":
+                    cur.execute("UPDATE staging.content_enriched SET label_source='review_noise' WHERE id=%s", (doc_id,))
+                else:
+                    cur.execute("UPDATE staging.content_enriched SET topic_label=%s, topic_id=-2, "
+                                "label_source='llm' WHERE id=%s", (cat, doc_id))
+    rescued = sum(1 for c in out.values() if c != "noise")
+    print(f"[llm_tiebreak] {len(df)} review docs: {rescued} rescued, {len(out)-rescued} confirmed noise")
+    return {"n": len(df), "rescued": rescued}

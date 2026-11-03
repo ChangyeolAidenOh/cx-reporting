@@ -95,6 +95,10 @@ def save_to_db(df):
                     """,
                     (row["brand"], row["period"].date(), float(row["ratio"])),
                 )
+                cur.execute(
+                    "INSERT INTO raw.naver_datalab_history (brand, period, ratio) VALUES (%s, %s, %s)",
+                    (row["brand"], row["period"].date(), float(row["ratio"])),
+                )
     print(f"  DB: {len(df)} rows upserted to raw.naver_datalab")
 
 

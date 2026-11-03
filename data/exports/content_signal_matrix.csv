@@ -1,5 +1,5 @@
 ﻿brand,topic_label,avg_engagement,search_signal,quadrant,sample_count,signal_tag
-db,브랜드 캠페인,62034.19,0.5736,high-high,31,cluster 시그널
+db,브랜드 캠페인,62038.77,0.5736,high-high,31,cluster 시그널
 db,상품 설계·고객후기,4214.88,-1.299,high-low,8,cluster 시그널
 db,이벤트·프로모션,25198.19,0.4469,high-high,32,cluster 시그널
 hyundai,브랜드 캠페인,30870.82,1.7676,high-high,60,cluster 시그널
@@ -7,8 +7,8 @@ hyundai,상품 설계·고객후기,464.75,11.9393,high-high,4,cluster 시그널
 hyundai,실손·건강보험,3967.0,3.4456,high-high,2,cluster 시그널
 hyundai,이벤트·프로모션,13043.07,3.1507,high-high,28,cluster 시그널
 kb,보험금 청구·보상,841.0,0.0,high-low,1,cluster 시그널
-kb,브랜드 캠페인,20870.81,0.9763,high-high,26,cluster 시그널
-kb,상품 설계·고객후기,3238.0,-1.597,high-low,2,cluster 시그널
+kb,브랜드 캠페인,21082.88,0.9763,high-high,26,cluster 시그널
+kb,상품 설계·고객후기,3332.0,-1.597,high-low,3,cluster 시그널
 kb,실손·건강보험,297.0,-7.7656,high-low,2,cluster 시그널
 kb,이벤트·프로모션,8888.05,0.2105,high-high,22,cluster 시그널
 kb,자동차보험,1430.0,9.9745,high-high,1,cluster 시그널

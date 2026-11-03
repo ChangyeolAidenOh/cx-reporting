@@ -123,23 +123,32 @@ def save_matrix_to_db(matrix_df):
 # Part 2: Brand x Category proportion test
 # ============================================================
 
-def brand_category_test(alpha=0.05):
-    """Chi-square on brand x category table; Bonferroni-corrected post-hoc
-    z-tests of each (brand, category) proportion vs. all other brands."""
+def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all"):
+    """Chi-square + Bonferroni post-hoc. author_types: None (all) or list to restrict."""
     print("\n" + "=" * 70)
-    print("Part 2: Brand x Category Proportion Test (chi-square + Bonferroni)")
+    print(f"Part 2: Brand x Category Proportion Test — segment: {label}")
     print("=" * 70)
 
+    clauses, params = [], []
+    if author_types:
+        clauses.append("s.author_type = ANY(%s)");
+        params.append(author_types)
+    if sources:
+        clauses.append("s.source = ANY(%s)");
+        params.append(sources)
+    extra = (" AND " + " AND ".join(clauses)) if clauses else ""
     with get_conn() as conn:
         df = pd.read_sql(
-            """
-            SELECT s.brand, s.topic_label
-            FROM staging.content_enriched s
-            LEFT JOIN raw.naver_voc v
-              ON s.source IN ('blog', 'cafearticle') AND s.source_id = v.id::text
-            WHERE s.topic_label != 'noise' AND s.brand != 'general'
-              AND (v.query IS NULL OR v.query LIKE '%%후기' OR v.query IN ('자동차보험 비교', '실손보험 추천'))
-            """, conn)
+            f"""
+                SELECT s.brand, s.topic_label
+                FROM staging.content_enriched s
+                LEFT JOIN raw.naver_voc v
+                  ON s.source IN ('blog', 'cafearticle') AND s.source_id = v.id::text
+                WHERE s.topic_label != 'noise' AND s.brand != 'general'
+                  AND (v.query IS NULL OR v.query LIKE '%%후기' OR v.query IN ('자동차보험 비교', '실손보험 추천'))
+                  {extra}
+                """, conn, params=params or None)
+    print(f"  (symmetric subset, n={len(df)})")
 
     ct = pd.crosstab(df["brand"], df["topic_label"])
     chi2, p, dof, _ = stats.chi2_contingency(ct)
@@ -180,8 +189,13 @@ def brand_category_test(alpha=0.05):
         print(f"  {r['brand']:<14} {r['topic_label']:<18} {r['ratio']:>5.2f}x  "
               f"({r['share_brand']:.1%} vs {r['share_others']:.1%})  z={r['z']:+.1f}  {direction}{mark}")
 
-    res.to_csv(f"{EXPORT_DIR}/brand_category_test.csv", index=False, encoding="utf-8-sig")
-    print(f"\nCSV exported: {EXPORT_DIR}/brand_category_test.csv")
+    res["segment"] = label
+    res["n_brand_cat"] = res.apply(lambda r: int(ct.loc[r["brand"], r["topic_label"]]), axis=1)
+    small = res[res["significant"] & (res["n_brand_cat"] < 30)]
+    if len(small):
+        print(f"  ⚠ {len(small)} significant cells have n<30 (unstable): "
+              + ", ".join(f"{r['brand']}/{r['topic_label']}({r['n_brand_cat']})" for _, r in small.iterrows()))
+    res.to_csv(f"{EXPORT_DIR}/brand_category_test_{label}.csv", index=False, encoding="utf-8-sig")
     return res
 
 
@@ -322,7 +336,13 @@ def run():
     save_matrix_to_db(matrix_df)
     matrix_df.to_csv(f"{EXPORT_DIR}/content_signal_matrix.csv", index=False, encoding="utf-8-sig")
 
-    brand_category_test()
+    web = ["blog", "cafearticle"]
+    r1 = brand_category_test(sources=web, author_types=["customer"], label="web_customer")
+    r2 = brand_category_test(sources=web, author_types=["advisor"], label="web_advisor")
+    r3 = brand_category_test(sources=["youtube_comment"], label="youtube")
+    r0 = brand_category_test(label="all_pooled")  # reference only — source-mix confounded
+    pd.concat([r1, r2, r3, r0]).to_csv(f"{EXPORT_DIR}/brand_category_test.csv", index=False, encoding="utf-8-sig")
+
     lead_lag_analysis()
     extract_representatives()
 

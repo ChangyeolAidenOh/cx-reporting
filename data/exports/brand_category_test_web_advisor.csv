@@ -1,0 +1,31 @@
+﻿brand,topic_label,share_brand,share_others,ratio,z,p_value,significant,signal_tag,segment,n_brand_cat
+db,보험금 청구·보상,0.1103,0.057,1.93,2.35,0.01867180691336512,False,cluster 시그널,web_advisor,15
+db,브랜드 캠페인,0.0,0.0012,0.0,-0.4,0.6905571210958497,False,cluster 시그널,web_advisor,0
+db,상품 설계·고객후기,0.3676,0.5425,0.68,-3.79,0.00014960771909677817,True,통계 검증 ✓,web_advisor,50
+db,실손·건강보험,0.1544,0.1572,0.98,-0.08,0.9347377272721797,False,cluster 시그널,web_advisor,21
+db,이벤트·프로모션,0.0074,0.0035,2.11,0.66,0.5085598345388385,False,cluster 시그널,web_advisor,1
+db,자동차보험,0.3603,0.2386,1.51,3.02,0.0025024750682949293,False,cluster 시그널,web_advisor,49
+hyundai,보험금 청구·보상,0.027,0.0708,0.38,-2.0,0.04501720951861987,False,cluster 시그널,web_advisor,4
+hyundai,브랜드 캠페인,0.0,0.0012,0.0,-0.42,0.6757843713492271,False,cluster 시그널,web_advisor,0
+hyundai,상품 설계·고객후기,0.8784,0.4557,1.93,9.49,0.0,True,통계 검증 ✓,web_advisor,130
+hyundai,실손·건강보험,0.0405,0.1771,0.23,-4.22,2.492293980393967e-05,True,통계 검증 ✓,web_advisor,6
+hyundai,이벤트·프로모션,0.0068,0.0035,1.91,0.57,0.5684975455515446,False,cluster 시그널,web_advisor,1
+hyundai,자동차보험,0.0473,0.2916,0.16,-6.29,3.184499330899371e-10,True,통계 검증 ✓,web_advisor,7
+kb,보험금 청구·보상,0.097,0.0481,2.02,2.96,0.00310494620945323,False,cluster 시그널,web_advisor,32
+kb,브랜드 캠페인,0.0,0.0015,0.0,-0.7,0.4809361226145783,False,cluster 시그널,web_advisor,0
+kb,상품 설계·고객후기,0.3364,0.609,0.55,-8.1,4.440892098500626e-16,True,통계 검증 ✓,web_advisor,111
+kb,실손·건강보험,0.1909,0.1398,1.37,2.09,0.037023008561311466,False,cluster 시그널,web_advisor,63
+kb,이벤트·프로모션,0.0061,0.003,2.02,0.72,0.47364648212044336,False,cluster 시그널,web_advisor,2
+kb,자동차보험,0.3697,0.1985,1.86,5.83,5.502555744385518e-09,True,통계 검증 ✓,web_advisor,122
+meritz,보험금 청구·보상,0.0212,0.0744,0.28,-2.69,0.007206669395687593,False,cluster 시그널,web_advisor,4
+meritz,브랜드 캠페인,0.0053,0.0,,2.07,0.038817408313564394,False,cluster 시그널,web_advisor,1
+meritz,상품 설계·고객후기,0.709,0.4739,1.5,5.82,5.8596498764273974e-09,True,통계 검증 ✓,web_advisor,134
+meritz,실손·건강보험,0.2063,0.1452,1.42,2.08,0.03731987016016047,False,cluster 시그널,web_advisor,39
+meritz,이벤트·프로모션,0.0,0.005,0.0,-0.97,0.33182788568322663,False,cluster 시그널,web_advisor,0
+meritz,자동차보험,0.0582,0.3015,0.19,-6.9,5.0537352080937126e-12,True,통계 검증 ✓,web_advisor,11
+samsung_fire,보험금 청구·보상,0.0469,0.0685,0.68,-1.1,0.27267781755421083,False,cluster 시그널,web_advisor,9
+samsung_fire,브랜드 캠페인,0.0,0.0012,0.0,-0.49,0.6246803802643544,False,cluster 시그널,web_advisor,0
+samsung_fire,상품 설계·고객후기,0.474,0.5293,0.9,-1.38,0.1682448353506567,False,cluster 시그널,web_advisor,91
+samsung_fire,실손·건강보험,0.1406,0.1606,0.88,-0.69,0.49303936918005786,False,cluster 시그널,web_advisor,27
+samsung_fire,이벤트·프로모션,0.0,0.005,0.0,-0.98,0.32711789189756235,False,cluster 시그널,web_advisor,0
+samsung_fire,자동차보험,0.3385,0.2354,1.44,2.95,0.0032238759071985257,False,cluster 시그널,web_advisor,65
