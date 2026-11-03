@@ -194,7 +194,7 @@ def brand_category_test(alpha=0.05, author_types=None, sources=None, label="all"
         drops the cell below the threshold; ratio_loo_min/max give the range.
     """
     print("\n" + "=" * 70)
-    print(f"Part 2: Brand x Category Proportion Test — segment: {label}")
+    print(f"Part 2: Brand x Category Proportion Test, segment: {label}")
     print("=" * 70)
 
     clauses, params = [], []
@@ -503,7 +503,7 @@ def run():
     r1 = brand_category_test(sources=web, author_types=["customer"], label="web_customer")
     r2 = brand_category_test(sources=web, author_types=["advisor"], label="web_advisor")
     r3 = brand_category_test(sources=["youtube_comment"], label="youtube")
-    r0 = brand_category_test(label="all_pooled")  # reference only — source-mix confounded
+    r0 = brand_category_test(label="all_pooled")  # reference only, source-mix confounded
     pd.concat([r1, r2, r3, r0]).to_csv(f"{EXPORT_DIR}/brand_category_test.csv", index=False, encoding="utf-8-sig")
 
     lead_lag_analysis()

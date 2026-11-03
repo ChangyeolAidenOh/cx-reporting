@@ -49,10 +49,10 @@ def step(name, fn, *a, stop_on_fail=False, **kw):
     t0 = time.time()
     try:
         out = fn(*a, **kw)
-        print(f"  ✓ {name} ({time.time() - t0:.0f}s)")
+        print(f"  ok   {name} ({time.time() - t0:.0f}s)")
         return out, None
     except Exception as e:
-        print(f"  ✗ {name}: {e}")
+        print(f"  FAIL {name}: {e}")
         traceback.print_exc()
         if stop_on_fail:
             raise
@@ -111,7 +111,7 @@ def main():
 
     from orchestration import incremental, snapshot
     run_log = {"started": datetime.now().isoformat(), "steps": {}}
-    print("=" * 60 + f"\nWeekly run — {run_log['started']}\n" + "=" * 60)
+    print("=" * 60 + f"\nWeekly run {run_log['started']}\n" + "=" * 60)
 
     # 1. collect
     if not a.skip_collect:
@@ -191,7 +191,7 @@ def main():
               ensure_ascii=False, indent=2, default=str)
 
     print("\n" + "=" * 60)
-    print(f"Done — {week_label} | new {pipeline_stats['new_docs']} | "
+    print(f"Done {week_label} | new {pipeline_stats['new_docs']} | "
           f"category review {pipeline_stats['review_rate']:.0%} -> rescued {pipeline_stats['rescued_by_llm']} "
           f"-> final review {pipeline_stats['final_review']} | "
           f"author review {pipeline_stats['author_review_rate']:.0%}, filtered {pipeline_stats['author_filtered']}")

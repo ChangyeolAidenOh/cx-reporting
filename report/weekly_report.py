@@ -176,12 +176,12 @@ def fmt_cat_test(d):
         if s.empty:
             continue
         n_b = int(s["n_brand"].iloc[0]) if "n_brand" in s.columns else 0
-        lines.append(f"  [{seg_kr} — 세그먼트 {seg}, {TARGET_KR} n={n_b}]")
+        lines.append(f"  [{seg_kr}, 세그먼트 {seg}, {TARGET_KR} n={n_b}]")
         for _, r in s[s["robust"]].sort_values("ratio", ascending=False).iterrows():
             lines.append(f"    {r['topic_label']}: {r['ratio']:.2f}x ({r['share_brand']:.1%} vs 경쟁사 {r['share_others']:.1%}), "
                          f"LOO {r['ratio_loo_min']:.2f}-{r['ratio_loo_max']:.2f}x  [{TAG_STAT}]")
         for _, r in s[s["significant"] & ~s["robust"]].iterrows():
-            lines.append(f"    {r['topic_label']}: {r['ratio']:.2f}x — {r['loo_fragile_without']} 제외 시 유의성 소실, "
+            lines.append(f"    {r['topic_label']}: {r['ratio']:.2f}x, {r['loo_fragile_without']} 제외 시 유의성 소실, "
                          f"경쟁사 구성의 거울상 가능성  [{TAG_CLUSTER}]")
         if seg == "web_customer":
             rest = s[~s["significant"]]
@@ -258,7 +258,7 @@ def fmt_changes(d):
         return "  (전주 비교 데이터 없음)"
     diff = wc.get("diff", {})
     if diff.get("first_snapshot"):
-        return "  첫 스냅샷 — 전주 비교 없음"
+        return "  첫 스냅샷, 전주 비교 없음"
     out = []
     for s in diff.get("sov", []):
         if "rank" in s:
@@ -307,13 +307,13 @@ def build_prompt(d):
 [2. 공식 콘텐츠 성과]
 {fmt_content(d)}
 
-[3. VoC 카테고리 구성 — 경쟁사 대비, 세그먼트별 (브랜드×카테고리 비중 검정)]
+[3. VoC 카테고리 구성: 경쟁사 대비, 세그먼트별 (브랜드 x 카테고리 비중 검정)]
 {fmt_cat_test(d)}
 
 [4. VoC 감성]
 {fmt_sentiment(d)}
 
-[5. 대표 VoC — 고객 작성 글]
+[5. 대표 VoC: 고객 작성 글]
 {fmt_reps(d)}
 
 [6. 이상 이벤트 (최근 4주)]
@@ -327,7 +327,7 @@ def build_prompt(d):
 
 === 출력 형식 ===
 
-{TARGET_KR} CX Weekly Report — {week_label}
+{TARGET_KR} CX Weekly Report {week_label}
 
 1. 핵심 요약 (3줄 이내)
 2. 전주 대비 변화 (순위·유의성·감성·이상 이벤트, 알림이 있으면 명시)
@@ -391,7 +391,7 @@ def generate_pdf(narrative, week_label, output_dir="data/exports"):
     st_d = ParagraphStyle("d", parent=ss["Normal"], fontName=font, fontSize=7,
                           textColor=HexColor("#95a5a6"), spaceBefore=10)
 
-    story = [Paragraph(f"{TARGET_KR} CX Weekly Report — {week_label}", st_title),
+    story = [Paragraph(f"{TARGET_KR} CX Weekly Report {week_label}", st_title),
              Paragraph(f"Generated {datetime.now():%Y-%m-%d %H:%M} | AI-assisted | "
                        f"태그: [{TAG_STAT}] 단정 가능, [{TAG_CLUSTER}] 패턴, [{TAG_QUAL}] 참고, [{TAG_LOWN}] 미확정", st_sub),
              HRFlowable(width="100%", thickness=1, color=HexColor("#5a4b00")), Spacer(1, 4)]

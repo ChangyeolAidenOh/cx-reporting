@@ -1,7 +1,7 @@
 """LLM labeling of author_type, shared by the backfill script
 (scripts/label_author_type.py) and the weekly pipeline (orchestration/incremental.py).
 
-author_type answers "who wrote this?" — orthogonal to topic_label ("what is it about?").
+author_type answers "who wrote this?", orthogonal to topic_label ("what is it about?").
 
   customer   1인칭 고객 경험·질문·불만·후기. 캠페인 영상에 단 일반 시청자 댓글 포함
   advisor    보험설계사·GA·손해사정사·대리점의 영업·안내 글 (상담 유도, 연락처, 설계안 제시, 모집종사자)

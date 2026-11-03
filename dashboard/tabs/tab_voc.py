@@ -1,4 +1,4 @@
-"""Tab 3: VoC Monitor — 감성 추이, 브랜드·카테고리별 감성, 대표 VoC."""
+"""Tab 3: VoC Monitor. 감성 추이, 브랜드와 카테고리별 감성, 대표 VoC."""
 
 import os
 import sys

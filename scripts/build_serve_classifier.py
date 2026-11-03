@@ -127,7 +127,7 @@ def run(force_model=None):
         near = [n for n in pool if acc_cov(results[n], y, OP_THRESHOLD)[0] >= top_acc - ACC_TOLERANCE]
         best = max(near, key=lambda n: acc_cov(results[n], y, OP_THRESHOLD)[1])
     a, c = acc_cov(results[best], y, OP_THRESHOLD)
-    print(f"\nSelected: {best} — acc@{OP_THRESHOLD}={a:.1%} at coverage {c:.0%} "
+    print(f"\nSelected: {best}, acc@{OP_THRESHOLD}={a:.1%} at coverage {c:.0%} "
           f"(overall {results[best]['acc']:.1%})" + ("  [forced]" if force_model else ""))
 
     labels = sorted(set(y))

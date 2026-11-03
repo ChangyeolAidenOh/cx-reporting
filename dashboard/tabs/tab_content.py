@@ -1,4 +1,4 @@
-"""Tab 2: Content & Category — 브랜드×카테고리 검정(세그먼트별), signal matrix, lead-lag."""
+"""Tab 2: Content & Category. 브랜드 x 카테고리 검정(세그먼트별), signal matrix, lead-lag."""
 
 import os
 import sys
@@ -21,7 +21,7 @@ SEGMENTS = {
     "web_customer": "블로그·카페 · 고객 작성 글 (상품·여정 카테고리의 기준)",
     "web_advisor": "블로그·카페 · 설계사·비교 콘텐츠 (공급자 측 신호)",
     "youtube": "YouTube 댓글 (캠페인·이벤트 반응의 기준)",
-    "all_pooled": "전체 풀링 (참고용 — 채널 규모가 지배, 발견에 인용하지 않음)",
+    "all_pooled": "전체 풀링 (참고용, 채널 규모가 지배하므로 발견에 인용하지 않음)",
 }
 SMALL_N = 30
 
@@ -56,14 +56,14 @@ def _prep(test):
 
 
 def render_category_test(test):
-    st.subheader("브랜드 × 카테고리 VoC 비중 — 경쟁사 대비 인덱스")
+    st.subheader("브랜드 x 카테고리 VoC 비중: 경쟁사 대비 인덱스")
     if test.empty or "ratio" not in test.columns:
         st.info("brand_category_test.csv not available.")
         return
     t = _prep(test)
     segs = [s for s in SEGMENTS if s in t["segment"].unique()]
     seg = st.selectbox("세그먼트", segs, index=segs.index("web_customer") if "web_customer" in segs else 0,
-                       format_func=lambda s: f"{s} — {SEGMENTS[s]}", key="cat_seg")
+                       format_func=lambda s: f"{s}: {SEGMENTS[s]}", key="cat_seg")
     s = t[t["segment"] == seg]
     cats = [c for c in CAT_ORDER if c in s["topic_label"].unique()]
     piv = lambda col: s.pivot(index="brand", columns="topic_label", values=col).reindex(index=BRAND_KEYS, columns=cats)
@@ -135,7 +135,7 @@ def render_category_test(test):
                 if int(r["n_brand_cat"]) < SMALL_N:
                     items.append(f"{r['topic_label']} 미확정 (n={int(r['n_brand_cat'])}, 수축 추정 {r['ratio_shrunk']:.2f}x)")
                 else:
-                    items.append(f"{r['topic_label']} {r['ratio']:.2f}x — 검출 범위 {r['mde_ratio_under']:.2f}-{r['mde_ratio_over']:.2f}x 안")
+                    items.append(f"{r['topic_label']} {r['ratio']:.2f}x, 검출 범위 {r['mde_ratio_under']:.2f}-{r['mde_ratio_over']:.2f}x 안")
             lines.append("범위 내, 미확정: " + ", ".join(items))
     if lines:
         st.info(f"{name} ({seg}, n={int(tgt['n_brand'].iloc[0]) if not tgt.empty else 0}):  \n" + "  \n".join(lines))

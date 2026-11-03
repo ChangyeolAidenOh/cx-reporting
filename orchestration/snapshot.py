@@ -2,7 +2,9 @@
 
 snapshot_json keys:
   sov:           {brand_key: {sov, wow, rank}}
-  cat_index:     {category: {ratio, significant}}   (target brand, symmetric subset)
+  cat_index:     {"segment:category": {ratio, significant, robust}}
+                 (target brand, symmetric subset, segments web_customer / web_advisor / youtube;
+                  all_pooled is excluded because it measures channel size, not brand)
   sentiment:     {positive, neutral, negative, n}   (target brand, 4-week rolling)
   anomalies:     [{brand, date, z, methods}]        (last 4 weeks)
   pipeline:      {new_docs, review_rate, outlier_rate_total, ...}
@@ -21,6 +23,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import pandas as pd
 from config.db import get_conn
 from config.settings import BRANDS, BRAND_KR_TO_KEY, TARGET_BRAND
+
+SNAPSHOT_SEGMENTS = ["web_customer", "web_advisor", "youtube"]
 
 
 def build_snapshot(week_start, pipeline_stats):
@@ -47,8 +51,15 @@ def build_snapshot(week_start, pipeline_stats):
             "SUM((label_source='review')::int) review FROM staging.content_enriched", conn)
 
     cat_path = "data/exports/brand_category_test.csv"
-    cat = pd.read_csv(cat_path) if os.path.exists(cat_path) else pd.DataFrame()
-    cat_t = cat[cat["brand"] == TARGET_BRAND] if not cat.empty else pd.DataFrame()
+    cat = pd.read_csv(cat_path, encoding="utf-8-sig") if os.path.exists(cat_path) else pd.DataFrame()
+    if not cat.empty:
+        if "segment" not in cat.columns:
+            cat["segment"] = "all"
+        if "robust" not in cat.columns:
+            cat["robust"] = False
+        cat_t = cat[(cat["brand"] == TARGET_BRAND) & cat["segment"].isin(SNAPSHOT_SEGMENTS)]
+    else:
+        cat_t = pd.DataFrame()
 
     snap = {
         "week_label": week_label,
@@ -57,8 +68,11 @@ def build_snapshot(week_start, pipeline_stats):
                     "wow": None if pd.isna(r["wow_change_pct"]) else round(float(r["wow_change_pct"]), 2),
                     "rank": i + 1}
                 for i, (_, r) in enumerate(sov.iterrows())},
-        "cat_index": {r["topic_label"]: {"ratio": round(float(r["ratio"]), 3),
-                                         "significant": bool(r["significant"])}
+        "cat_index": {f"{r['segment']}:{r['topic_label']}": {
+                          "segment": r["segment"], "category": r["topic_label"],
+                          "ratio": None if pd.isna(r["ratio"]) else round(float(r["ratio"]), 3),
+                          "significant": str(r["significant"]).lower() == "true",
+                          "robust": str(r["robust"]).lower() == "true"}
                       for _, r in cat_t.iterrows()},
         "sentiment": {"positive": round(float(sent.iloc[0]["p"] or 0), 4),
                       "neutral": round(float(sent.iloc[0]["n"] or 0), 4),
@@ -92,32 +106,37 @@ def diff_snapshots(prev, cur):
         elif abs(c["sov"] - p["sov"]) >= 1.0:
             d["sov"].append({"brand": b, "sov": [p["sov"], c["sov"]]})
 
-    # Category index: significance flips or ratio change >= 20%
+    # Category index per segment: robust flips (the only kind that changes a finding)
+    # or ratio change >= 20%. Significant-but-fragile flips are reported, not alerted.
     for k, c in cur["cat_index"].items():
         p = prev["cat_index"].get(k)
-        if not p:
+        if not p or p.get("ratio") is None or c.get("ratio") is None:
             continue
-        flip = p["significant"] != c["significant"]
+        flip = p.get("robust", False) != c.get("robust", False)
         rel = (c["ratio"] - p["ratio"]) / p["ratio"] if p["ratio"] else 0
         if flip or abs(rel) >= 0.20:
-            d["cat_index"].append({"category": k, "ratio": [p["ratio"], c["ratio"]],
-                                   "significant": [p["significant"], c["significant"]], "flip": flip})
+            d["cat_index"].append({"category": c.get("category", k), "segment": c.get("segment"),
+                                   "ratio": [p["ratio"], c["ratio"]],
+                                   "robust": [p.get("robust", False), c.get("robust", False)],
+                                   "significant": [p.get("significant", False), c.get("significant", False)],
+                                   "flip": flip})
             if flip:
-                d["alerts"].append(f"유의성 전환: {k} ({p['ratio']:.2f}x→{c['ratio']:.2f}x) — 큐레이션 인사이트 재검토")
+                d["alerts"].append(f"robust 전환: {c.get('segment')} {c.get('category', k)} "
+                                   f"({p['ratio']:.2f}x -> {c['ratio']:.2f}x), 20건 샘플 검수 후 발견 재검토")
 
     # Sentiment (pp change)
     for k in ["positive", "negative"]:
         delta = cur["sentiment"][k] - prev["sentiment"][k]
         d["sentiment"][k] = round(delta * 100, 2)
         if k == "negative" and delta >= 0.03:
-            d["alerts"].append(f"부정 비율 +{delta*100:.1f}pp — 원인 조사 필요")
+            d["alerts"].append(f"부정 비율 +{delta*100:.1f}pp, 원인 조사 필요")
 
     # New anomalies
     prev_keys = {(a["brand"], a["date"]) for a in prev["anomalies"]}
     d["new_anomalies"] = [a for a in cur["anomalies"] if (a["brand"], a["date"]) not in prev_keys]
     for a in d["new_anomalies"]:
         if a["methods"] == 3 and a["brand"] == TARGET_BRAND:
-            d["alerts"].append(f"3/3 이상 이벤트 {a['date']} (z={a['z']:+.2f}) — probable_cause 기입 필요")
+            d["alerts"].append(f"3/3 이상 이벤트 {a['date']} (z={a['z']:+.2f}), probable_cause 기입 필요")
 
     # Representatives turnover
     for k, ids in cur["representatives"].items():
@@ -129,9 +148,11 @@ def diff_snapshots(prev, cur):
     # Pipeline health
     pl = cur["pipeline"]
     if pl.get("review_rate", 0) >= 0.30:
-        d["alerts"].append(f"신규 문서 검토 비율 {pl['review_rate']:.0%} ≥ 30% — 모델 드리프트 의심, 재학습 검토")
+        d["alerts"].append(f"신규 문서 검토 비율 {pl['review_rate']:.0%} (30% 이상), 모델 드리프트 의심, 재학습 검토")
+    if pl.get("author_review_rate", 0) >= 0.40:
+        d["alerts"].append(f"작성자 분류기 LLM 검토 비율 {pl['author_review_rate']:.0%} (40% 이상), 작성자 분류기 재학습 검토")
     if pl.get("llm_share", 0) >= 0.40:
-        d["alerts"].append(f"Haiku 호출 비율 {pl['llm_share']:.0%} ≥ 40% — 감성사전 보강 필요")
+        d["alerts"].append(f"Haiku 호출 비율 {pl['llm_share']:.0%} (40% 이상), 감성사전 보강 필요")
     return d
 
 

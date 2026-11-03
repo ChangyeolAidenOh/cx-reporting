@@ -1,4 +1,4 @@
-"""Tab 1: Brand Tracker — 검색 관심도 추세, WoW, SoV."""
+"""Tab 1: Brand Tracker. 검색 관심도 추세, WoW, SoV."""
 
 import os
 import sys
@@ -29,12 +29,12 @@ def render():
     latest_week = df["week_start"].max()
     latest = df[df["week_start"] == latest_week].sort_values("sov_pct", ascending=False)
 
-    st.subheader(f"Weekly KPI — {latest_week:%Y-%m-%d}")
+    st.subheader(f"Weekly KPI ({latest_week:%Y-%m-%d})")
     cols = st.columns(len(latest))
     for col, (_, r) in zip(cols, latest.iterrows()):
         with col:
             delta = f"{r['wow_change_pct']:+.1f}%" if pd.notna(r["wow_change_pct"]) else "N/A"
-            label = f"⭐ {r['brand']}" if r["brand"] == TARGET_KR else r["brand"]
+            label = f"{r['brand']} (target)" if r["brand"] == TARGET_KR else r["brand"]
             st.metric(label=label, value=f"{r['sov_pct']:.1f}%", delta=delta)
 
     st.markdown("---")

@@ -160,7 +160,7 @@ def run(force_model=None, merge_media=True):
         best = max(near, key=lambda n: (scored[n]["coverage"], scored[n]["unrelated_precision"]))
     r = results[best]
     sel = at_threshold(y, r["pred"], r["conf"], OP_THRESHOLD)
-    print(f"\nSelected: {best} — @{OP_THRESHOLD} customer P={sel['customer_precision']:.1%}, "
+    print(f"\nSelected: {best}, @{OP_THRESHOLD} customer P={sel['customer_precision']:.1%}, "
           f"unrelated P={sel['unrelated_precision']:.1%}, coverage {sel['coverage']:.0%}"
           + ("  [forced]" if force_model else ""))
 

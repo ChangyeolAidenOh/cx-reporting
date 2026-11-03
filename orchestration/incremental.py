@@ -299,7 +299,7 @@ def apply_author_filter(max_affected=None):
     """blog/cafe docs whose author is unrelated to insurance are noise for every downstream module.
     Only docs that are not noise yet are touched: docs already noise keep their topic_id and
     label_source (the category classifier trains its noise class on them).
-    max_affected: safety stop — if more docs than this would change, nothing is written."""
+    max_affected: safety stop. If more docs than this would change, nothing is written."""
     cond = "source = ANY(%s) AND author_type = 'unrelated' AND topic_label <> 'noise'"
     with get_conn() as conn:
         with conn.cursor() as cur:
