@@ -1,85 +1,139 @@
 {
-  "week_label": "2026-W44",
+  "week_label": "2026-W45",
   "snapshot": {
-    "week_label": "2026-W44",
+    "week_label": "2026-W45",
     "sov": {
       "hyundai": {
-        "sov": 22.76,
-        "wow": 2.95,
+        "sov": 23.66,
+        "wow": -2.47,
         "rank": 1
       },
       "samsung_fire": {
-        "sov": 22.69,
-        "wow": 3.27,
+        "sov": 22.62,
+        "wow": -6.46,
         "rank": 2
       },
-      "kb": {
-        "sov": 21.42,
-        "wow": 9.52,
+      "db": {
+        "sov": 21.14,
+        "wow": -3.02,
         "rank": 3
       },
-      "db": {
-        "sov": 20.45,
-        "wow": -6.69,
+      "kb": {
+        "sov": 20.66,
+        "wow": -9.51,
         "rank": 4
       },
       "meritz": {
-        "sov": 12.67,
-        "wow": 11.87,
+        "sov": 11.93,
+        "wow": -11.67,
         "rank": 5
       }
     },
     "cat_index": {
-      "보험금 청구·보상": {
-        "ratio": 4.77,
-        "significant": true
+      "web_customer:상품 설계·고객후기": {
+        "segment": "web_customer",
+        "category": "상품 설계·고객후기",
+        "ratio": 1.34,
+        "significant": false,
+        "robust": false
       },
-      "브랜드 캠페인": {
-        "ratio": 0.65,
-        "significant": true
+      "web_customer:실손·건강보험": {
+        "segment": "web_customer",
+        "category": "실손·건강보험",
+        "ratio": 1.37,
+        "significant": false,
+        "robust": false
       },
-      "상품 설계·고객후기": {
-        "ratio": 1.11,
-        "significant": false
+      "web_customer:자동차보험": {
+        "segment": "web_customer",
+        "category": "자동차보험",
+        "ratio": 1.64,
+        "significant": false,
+        "robust": false
       },
-      "실손·건강보험": {
-        "ratio": 1.8,
-        "significant": true
+      "web_customer:태아·어린이보험": {
+        "segment": "web_customer",
+        "category": "태아·어린이보험",
+        "ratio": 0.32,
+        "significant": true,
+        "robust": false
       },
-      "이벤트·프로모션": {
-        "ratio": 1.17,
-        "significant": false
+      "web_advisor:보험금 청구·보상": {
+        "segment": "web_advisor",
+        "category": "보험금 청구·보상",
+        "ratio": 1.81,
+        "significant": false,
+        "robust": false
       },
-      "자동차보험": {
-        "ratio": 2.89,
-        "significant": true
+      "web_advisor:상품 설계·고객후기": {
+        "segment": "web_advisor",
+        "category": "상품 설계·고객후기",
+        "ratio": 0.84,
+        "significant": false,
+        "robust": false
+      },
+      "web_advisor:실손·건강보험": {
+        "segment": "web_advisor",
+        "category": "실손·건강보험",
+        "ratio": 1.58,
+        "significant": true,
+        "robust": false
+      },
+      "web_advisor:자동차보험": {
+        "segment": "web_advisor",
+        "category": "자동차보험",
+        "ratio": 1.87,
+        "significant": true,
+        "robust": true
+      },
+      "web_advisor:태아·어린이보험": {
+        "segment": "web_advisor",
+        "category": "태아·어린이보험",
+        "ratio": 0.3,
+        "significant": true,
+        "robust": true
+      },
+      "youtube:브랜드 캠페인": {
+        "segment": "youtube",
+        "category": "브랜드 캠페인",
+        "ratio": 0.97,
+        "significant": false,
+        "robust": false
+      },
+      "youtube:상품 설계·고객후기": {
+        "segment": "youtube",
+        "category": "상품 설계·고객후기",
+        "ratio": 0.52,
+        "significant": false,
+        "robust": false
+      },
+      "youtube:이벤트·프로모션": {
+        "segment": "youtube",
+        "category": "이벤트·프로모션",
+        "ratio": 1.13,
+        "significant": false,
+        "robust": false
       }
     },
     "sentiment": {
-      "positive": 0.4422,
-      "neutral": 0.4766,
-      "negative": 0.0812,
-      "n": 1137
+      "positive": 0.4,
+      "neutral": 0.51,
+      "negative": 0.0896,
+      "n": 917
     },
     "anomalies": [
       {
         "brand": "kb",
         "date": "2026-10-05",
-        "z": -2.94,
-        "methods": 2
-      },
-      {
-        "brand": "meritz",
-        "date": "2026-10-05",
-        "z": -2.59,
+        "z": -2.65,
         "methods": 2
       }
     ],
     "representatives": {
       "보험금 청구·보상": [
         19770,
-        20212,
-        20157
+        28140,
+        27884
       ],
       "브랜드 캠페인": [
         21741,
@@ -93,32 +147,92 @@
       ],
       "실손·건강보험": [
         19457,
-        19754,
-        20014
+        29744,
+        29692
       ],
       "이벤트·프로모션": [
-        21297,
-        17420,
-        13652
+        21297
       ],
       "자동차보험": [
+        29736,
         19498,
-        20190,
-        19702
+        20190
+      ],
+      "태아·어린이보험": [
+        27922,
+        17777,
+        28115
       ]
     },
     "pipeline": {
-      "new_docs": 1304,
-      "review_rate": 0.2163,
-      "confirmed": 1022,
-      "llm_share": 0.0,
-      "total_docs": 14899,
-      "outlier_rate_total": 0.11,
-      "review_queue": 282
+      "new_docs": 0,
+      "brand_reassigned": 0,
+      "confirmed": 0,
+      "review_rate": 0.0,
+      "rescued_by_llm": 181,
+      "final_review": 0,
+      "author_web_docs": 510,
+      "author_confirmed": 0,
+      "author_review_rate": 1.0,
+      "author_llm_labeled": 485,
+      "author_filtered": 0,
+      "llm_share": 0.3553,
+      "total_docs": 16650,
+      "outlier_rate_total": 0.2187,
+      "review_queue": 0
     }
   },
   "diff": {
-    "first_snapshot": true,
-    "alerts": []
+    "alerts": [
+      "작성자 분류기 LLM 검토 비율 100% (40% 이상), 작성자 분류기 재학습 검토"
+    ],
+    "sov": [
+      {
+        "brand": "db",
+        "rank": [
+          4,
+          3
+        ],
+        "sov": [
+          20.45,
+          21.14
+        ]
+      },
+      {
+        "brand": "kb",
+        "rank": [
+          3,
+          4
+        ],
+        "sov": [
+          21.42,
+          20.66
+        ]
+      }
+    ],
+    "cat_index": [],
+    "sentiment": {
+      "positive": -4.22,
+      "negative": 0.84
+    },
+    "new_anomalies": [],
+    "representatives": {
+      "보험금 청구·보상": [
+        28140,
+        27884
+      ],
+      "실손·건강보험": [
+        29744,
+        29692
+      ],
+      "자동차보험": [
+        29736
+      ],
+      "태아·어린이보험": [
+        27922,
+        17777,
+        28115
+      ]
+    }
   }
 }

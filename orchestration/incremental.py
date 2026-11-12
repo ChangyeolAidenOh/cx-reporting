@@ -193,7 +193,9 @@ def _author_gate(meta, source, pred_class):
 
 
 def classify_author_new():
-    """author_type for docs that have none: youtube by rule, blog/cafe by the author classifier."""
+    """author_type for docs that have none: youtube by rule, blog/cafe by the author classifier.
+    Docs already queued for LLM review (author_type_src='author_review') are not re-scored, so a
+    re-run without new docs reports 0 reviewed instead of a false 100% review rate."""
     import joblib
     from analysis.embedding_cache import get_embeddings
     from analysis.author_features import lexical_features, source_flag
@@ -209,10 +211,11 @@ def classify_author_new():
             SELECT id, source, COALESCE(title, '') AS title, text_clean
             FROM staging.content_enriched
             WHERE source = ANY(%s) AND author_type IS NULL AND label_source <> 'pending'
+              AND COALESCE(author_type_src, '') <> 'author_review'
             ORDER BY id
             """, conn, params=(list(WEB_SOURCES),))
     if df.empty:
-        print(f"[classify_author_new] youtube rule {n_rule}; no web docs to classify")
+        print(f"[classify_author_new] youtube rule {n_rule}; no new web docs to classify (queued docs stay in LLM review)")
         return {"n_rule": int(n_rule), "n": 0, "confirmed": 0, "review": 0}
 
     meta = json.load(open(f"{SERVE_DIR}/author_classifier_meta.json", encoding="utf-8"))

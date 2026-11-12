@@ -1,0 +1,73 @@
+{
+  "started": "2026-11-12T04:52:46.297571",
+  "steps": {
+    "new_docs": 0,
+    "brands": {
+      "n": 0,
+      "reassigned": 0
+    },
+    "classify": {
+      "n": 0,
+      "confirmed": 0,
+      "review": 0,
+      "review_rate": 0.0
+    },
+    "author": {
+      "n_rule": 0,
+      "n": 510,
+      "confirmed": 0,
+      "review": 510,
+      "pred_dist": {},
+      "by_source": {
+        "cafearticle": {
+          "n": 230,
+          "confirmed": 0
+        },
+        "blog": {
+          "n": 280,
+          "confirmed": 0
+        }
+      }
+    },
+    "author_review": {
+      "n": 510,
+      "labeled": 485,
+      "dist": {
+        "unrelated": 199,
+        "customer": 157,
+        "advisor": 112,
+        "media": 17
+      },
+      "blog_customer_verified": 67,
+      "verify_changed": 29
+    },
+    "author_filter": {
+      "n": 0,
+      "candidates": 89,
+      "stopped": true
+    },
+    "tiebreak": {
+      "n": 397,
+      "rescued": 181
+    },
+    "sentiment": {
+      "n": 1061,
+      "methods": {
+        "dictionary": 441,
+        "llm": 377,
+        "low_conf_dict": 243
+      },
+      "labels": {
+        "neutral": 540,
+        "positive": 407,
+        "negative": 114
+      }
+    },
+    "report": "ok"
+  },
+  "finished": "2026-11-12T04:59:37.299270",
+  "week_label": "2026-W45",
+  "alerts": [
+    "작성자 분류기 LLM 검토 비율 100% (40% 이상), 작성자 분류기 재학습 검토"
+  ]
+}
