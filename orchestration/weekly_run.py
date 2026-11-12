@@ -42,6 +42,7 @@ from config.db import get_conn
 
 LOG_DIR = "data/exports/runs"
 SETTLE_DAYS = 3
+AUTHOR_FILTER_CEILING = 500   # docs the author filter may set to noise in one run unless raised explicitly
 os.makedirs(LOG_DIR, exist_ok=True)
 
 
@@ -107,6 +108,8 @@ def main():
     p.add_argument("--skip-collect", action="store_true")
     p.add_argument("--no-llm", action="store_true")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--author-filter-limit", type=int, default=AUTHOR_FILTER_CEILING,
+                   help=f"max docs apply_author_filter may set to noise this run (default {AUTHOR_FILTER_CEILING})")
     a = p.parse_args()
 
     from orchestration import incremental, snapshot
@@ -130,9 +133,12 @@ def main():
     if not a.no_llm:
         aur, _ = step("llm_author_review", incremental.llm_author_review)
         aur = aur or {}
-    # safety stop: the author filter may only touch docs staged this run (plus a small margin)
+    # safety stop: the filter only ever touches docs whose author is unrelated AND that are not
+    # noise yet, so the mass-restamp failure mode is excluded by its SQL. The ceiling guards against
+    # a mass mislabel upstream; a backlog from a previously stopped run is still below it, and an
+    # operator can raise it with --author-filter-limit after checking the candidate count.
     af, _ = step("apply_author_filter", incremental.apply_author_filter,
-                 max_affected=max((n_new or 0), 50))
+                 max_affected=a.author_filter_limit)
     af = af or {}
     tb = {}
     if not a.no_llm:

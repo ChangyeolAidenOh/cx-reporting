@@ -1,0 +1,462 @@
+============================================================
+Weekly run 2026-11-12T12:46:08.343825
+============================================================
+[stage_new] 0 new docs staged (voc 4, comments 381 raw)
+  ok   stage_new (2s)
+[resolve_brands_new] 0 web docs checked, 0 reassigned by title
+  ok   resolve_brands_new (0s)
+[classify_new] nothing pending
+  ok   classify_new (0s)
+[classify_author_new] youtube rule 0; no new web docs to classify (queued docs stay in LLM review)
+  ok   classify_author_new (1s)
+  [FAIL] batch 1/1: Extra data: line 30 column 1 (char 1517)
+[llm_author_review] 25 docs: 0 labeled {} | blog customer verified 0, changed 0
+  ok   llm_author_review (33s)
+[apply_author_filter] 104 web docs set to noise (author unrelated)
+  ok   apply_author_filter (0s)
+[llm_tiebreak] nothing to tie-break
+  ok   llm_tiebreak (0s)
+[sentiment_new] nothing to score
+  ok   sentiment_new (0s)
+Extracted 750 rows from raw.naver_datalab
+Transformed 750 rows (5 null WoW for first week)
+Loaded 750 rows to mart.brand_search_weekly
+CSV exported: data/exports/brand_search_weekly.csv
+
+SoV summary (latest week):
+  삼성화재: SoV 23.4%  WoW -61.5%
+  현대해상: SoV 23.3%  WoW -63.3%
+  DB손해보험: SoV 21.0%  WoW -62.9%
+  KB손해보험: SoV 19.6%  WoW -64.6%
+  메리츠화재: SoV 12.7%  WoW -60.4%
+Extracted 477 videos from raw.youtube_videos
+Subscriber counts (live): {'KB손해보험': 137000, '삼성화재': 493000, 'DB손해보험': 599000, '현대해상': 192000, '메리츠화재': 6710}
+Transformed to 154 weekly records
+Loaded 154 rows to mart.content_performance
+CSV exported: data/exports/content_performance.csv
+
+Weekly content summary by brand:
+  DB손해보험: 26 weeks, avg 4.1 videos/week, avg engagement 0.0968%
+  KB손해보험: 24 weeks, avg 4.3 videos/week, avg engagement 0.1999%
+  메리츠화재: 21 weeks, avg 2.8 videos/week, avg engagement 0.3792%
+  삼성화재: 30 weeks, avg 3.5 videos/week, avg engagement 0.0480%
+  현대해상: 53 weeks, avg 2.0 videos/week, avg engagement 0.2169%
+Extracted 7768 docs with sentiment + date
+Transformed to 199 weekly records
+Loaded 199 rows to mart.voc_sentiment
+CSV exported: data/exports/voc_sentiment.csv
+
+Sentiment summary by brand:
+  db: avg positive 67.1%, avg negative 1.5%, 2435 total docs across 33 weeks
+  general: avg positive 49.8%, avg negative 6.2%, 354 total docs across 3 weeks
+  hyundai: avg positive 46.5%, avg negative 4.7%, 2441 total docs across 64 weeks
+  kb: avg positive 57.9%, avg negative 4.1%, 1753 total docs across 30 weeks
+  meritz: avg positive 26.8%, avg negative 3.7%, 186 total docs across 24 weeks
+  samsung_fire: avg positive 27.0%, avg negative 1.5%, 599 total docs across 45 weeks
+======================================================================
+Part 1: Content Signal Matrix
+======================================================================
+
+Brand          Category            Engagement    Signal Quadrant   N
+------------------------------------------------------------------------
+db             브랜드 캠페인                62354.5   -1.5889 high-low   32
+db             상품 설계·고객후기              3861.2   -8.1407 high-low   9
+db             이벤트·프로모션               25583.4   -1.6401 high-low   33
+hyundai        브랜드 캠페인                30238.7    0.6318 high-high  62
+hyundai        상품 설계·고객후기               464.8   11.9393 high-high  4
+hyundai        실손·건강보험                 3967.0    3.4456 high-high  2
+hyundai        이벤트·프로모션               12175.0    0.6663 high-high  30
+kb             보험금 청구·보상                866.0   -9.5099 high-low   1
+kb             브랜드 캠페인                22018.7   -1.9492 high-low   26
+kb             상품 설계·고객후기              3775.3  -25.2357 high-low   3
+kb             실손·건강보험                  297.0   -7.7656 high-low   2
+kb             이벤트·프로모션                9679.0   -3.1773 high-low   23
+kb             자동차보험                   1457.0  -27.3128 high-low   2
+meritz         자동차보험                    119.0    0.0000 high-low   1
+meritz         브랜드 캠페인                   95.9   20.9053 low-high   8
+meritz         상품 설계·고객후기                72.0   11.0520 low-high   2
+meritz         이벤트·프로모션                  93.5    0.0000 low-low    8
+samsung_fire   보험금 청구·보상                847.0   22.1787 high-high  2
+samsung_fire   상품 설계·고객후기               296.3    5.1924 high-high  6
+samsung_fire   자동차보험                   1330.0    1.2368 high-high  1
+samsung_fire   브랜드 캠페인                 5331.2   -1.8800 high-low   31
+samsung_fire   이벤트·프로모션                6168.6   -0.5521 high-low   41
+
+Saved 22 rows to mart.content_signal_matrix
+
+======================================================================
+Part 2: Brand x Category Proportion Test, segment: web_customer
+======================================================================
+  (symmetric subset, n=1067)
+  (symmetric subset: target-brand product queries excluded from cross-brand test)
+  Excluded from test (category n < 30 in segment): 보험금 청구·보상(16), 이벤트·프로모션(4)
+  Brand n: db=119, hyundai=315, kb=173, meritz=227, samsung_fire=213
+
+Omnibus chi-square: chi2=458.4, dof=12, p=1.54e-90
+Post-hoc: 20 cells, Bonferroni alpha = 0.00250, MDE power = 80%
+
+Significant over/under-indexing (Bonferroni, alpha=0.05): 13 cells, 4 robust to leave-one-out
+  db             자동차보험               2.40x  (20.2% vs 8.4%)  z=+4.1 (fisher)  over  loo 1.74-3.43x  fragile: drops without hyundai
+  db             태아·어린이보험            0.31x  (10.9% vs 35.0%)  z=-5.3 (fisher)  under  loo 0.26-0.83x  fragile: drops without hyundai
+  hyundai        태아·어린이보험            6.03x  (77.5% vs 12.8%)  z=+20.5  over  loo 5.67-6.93x  robust
+  hyundai        상품 설계·고객후기          0.28x  (13.0% vs 46.6%)  z=-10.3  under  loo 0.26-0.30x  robust
+  hyundai        실손·건강보험             0.26x  (7.3% vs 27.6%)  z=-7.3 (fisher)  under  loo 0.26-0.28x  robust
+  hyundai        자동차보험               0.17x  (2.2% vs 13.0%)  z=-5.4 (fisher)  under  loo 0.13-0.20x  robust
+  kb             태아·어린이보험            0.32x  (11.6% vs 36.4%)  z=-6.4 (fisher)  under  loo 0.26-0.87x  fragile: drops without hyundai <- TARGET
+  meritz         상품 설계·고객후기          1.72x  (54.2% vs 31.6%)  z=+6.3  over  loo 1.26-1.96x  fragile: drops without hyundai
+  meritz         실손·건강보험             1.60x  (30.4% vs 19.0%)  z=+3.7  over  loo 1.15-1.86x  fragile: drops without hyundai
+  meritz         자동차보험               0.39x  (4.4% vs 11.2%)  z=-3.1 (fisher)  under  loo 0.26-0.48x  fragile: drops without db,kb,samsung_fire
+  meritz         태아·어린이보험            0.29x  (11.0% vs 38.2%)  z=-7.7 (fisher)  under  loo 0.24-0.81x  fragile: drops without hyundai
+  samsung_fire   자동차보험               2.14x  (16.9% vs 7.9%)  z=+4.0  over  loo 1.49-2.88x  fragile: drops without hyundai
+  samsung_fire   태아·어린이보험            0.47x  (16.9% vs 36.2%)  z=-5.4  under  loo 0.37-1.51x  fragile: drops without hyundai
+  Small cells (n<30, Fisher p, shrunk ratio [95% interval]):
+    db             실손·건강보험            n= 28  1.11x -> 1.09x [0.78, 1.44]
+    db             자동차보험              n= 24  2.40x -> 2.20x [1.49, 3.01]
+    db             태아·어린이보험           n= 13  0.31x -> 0.41x [0.26, 0.59]
+    hyundai        실손·건강보험            n= 23  0.26x -> 0.31x [0.21, 0.42]
+    hyundai        자동차보험              n=  7  0.17x -> 0.22x [0.10, 0.38]
+    kb             자동차보험              n= 25  1.64x -> 1.57x [1.06, 2.16]
+    kb             태아·어린이보험           n= 20  0.32x -> 0.39x [0.26, 0.53]
+    meritz         자동차보험              n= 10  0.39x -> 0.44x [0.23, 0.71]
+    meritz         태아·어린이보험           n= 25  0.29x -> 0.35x [0.24, 0.46]
+  Significant cells with n<30 (unstable): db/자동차보험(24), db/태아·어린이보험(13), hyundai/실손·건강보험(23), hyundai/자동차보험(7), kb/태아·어린이보험(20), meritz/자동차보험(10), meritz/태아·어린이보험(25)
+  Significant but below MDE (low power, effect likely overestimated): meritz/자동차보험
+
+Minimum detectable effect for kb (n=173):
+  상품 설계·고객후기         n= 80  p_others=34.5%  observed= 1.34x  detectable: under 0.56x / over 1.44x
+  실손·건강보험            n= 48  p_others=20.2%  observed= 1.37x  detectable: under 0.36x / over 1.64x
+  자동차보험              n= 25  p_others=8.8%  observed= 1.64x  detectable: under n/a / over 2.03x
+  태아·어린이보험           n= 20  p_others=36.4%  observed= 0.32x  detectable: under 0.57x / over 1.43x
+
+Power watch for kb: brand docs needed in segment (now 173)
+  상품 설계·고객후기         for 2x:     34   for 1.5x:    136
+  실손·건강보험            for 2x:     71   for 1.5x:    282
+  자동차보험              for 2x:    186   for 1.5x:    741
+  태아·어린이보험           for 2x:     32   for 1.5x:    126
+
+======================================================================
+Part 2: Brand x Category Proportion Test, segment: web_advisor
+======================================================================
+  (symmetric subset, n=1137)
+  (symmetric subset: target-brand product queries excluded from cross-brand test)
+  Excluded from test (category n < 30 in segment): 브랜드 캠페인(1), 이벤트·프로모션(4)
+  Brand n: db=150, hyundai=205, kb=355, meritz=222, samsung_fire=200
+
+Omnibus chi-square: chi2=552.0, dof=16, p=3.37e-107
+Post-hoc: 25 cells, Bonferroni alpha = 0.00200, MDE power = 80%
+
+Significant over/under-indexing (Bonferroni, alpha=0.05): 13 cells, 9 robust to leave-one-out
+  db             자동차보험               1.60x  (38.7% vs 24.1%)  z=+3.8  over  loo 1.31-2.40x  fragile: drops without hyundai,meritz
+  db             태아·어린이보험            0.50x  (15.3% vs 30.8%)  z=-3.9 (fisher)  under  loo 0.37-0.94x  fragile: drops without hyundai
+  hyundai        태아·어린이보험            5.28x  (85.4% vs 16.2%)  z=+19.8  over  loo 4.40-6.08x  robust
+  hyundai        실손·건강보험             0.18x  (3.4% vs 18.6%)  z=-5.4 (fisher)  under  loo 0.18-0.20x  robust
+  hyundai        상품 설계·고객후기          0.16x  (4.4% vs 27.1%)  z=-7.0 (fisher)  under  loo 0.14-0.22x  robust
+  hyundai        자동차보험               0.13x  (3.9% vs 31.0%)  z=-8.0 (fisher)  under  loo 0.10-0.15x  robust
+  kb             자동차보험               1.87x  (38.3% vs 20.5%)  z=+6.3  over  loo 1.45-2.80x  robust <- TARGET
+  kb             실손·건강보험             1.58x  (21.1% vs 13.4%)  z=+3.3  over  loo 1.25-1.89x  fragile: drops without hyundai <- TARGET
+  kb             태아·어린이보험            0.30x  (11.0% vs 36.8%)  z=-8.9  under  loo 0.25-0.57x  robust <- TARGET
+  meritz         상품 설계·고객후기          3.01x  (49.5% vs 16.5%)  z=+10.5  over  loo 2.48-3.53x  robust
+  meritz         자동차보험               0.19x  (5.9% vs 31.0%)  z=-7.7 (fisher)  under  loo 0.15-0.22x  robust
+  samsung_fire   자동차보험               1.73x  (40.0% vs 23.1%)  z=+5.0  over  loo 1.40-2.92x  robust
+  samsung_fire   태아·어린이보험            0.60x  (18.5% vs 30.9%)  z=-3.5  under  loo 0.43-1.19x  fragile: drops without hyundai
+  Small cells (n<30, Fisher p, shrunk ratio [95% interval]):
+    db             보험금 청구·보상          n= 16  1.84x -> 1.74x [1.04, 2.59]
+    db             상품 설계·고객후기         n= 29  0.82x -> 0.84x [0.60, 1.11]
+    db             실손·건강보험            n= 24  1.01x -> 1.01x [0.69, 1.38]
+    db             태아·어린이보험           n= 23  0.50x -> 0.56x [0.39, 0.75]
+    hyundai        보험금 청구·보상          n=  6  0.40x -> 0.46x [0.19, 0.83]
+    hyundai        상품 설계·고객후기         n=  9  0.16x -> 0.24x [0.13, 0.37]
+    hyundai        실손·건강보험            n=  7  0.18x -> 0.26x [0.13, 0.43]
+    hyundai        자동차보험              n=  8  0.13x -> 0.20x [0.11, 0.32]
+    meritz         보험금 청구·보상          n=  6  0.37x -> 0.42x [0.18, 0.76]
+    meritz         자동차보험              n= 13  0.19x -> 0.26x [0.16, 0.38]
+    samsung_fire   보험금 청구·보상          n= 12  0.92x -> 0.92x [0.50, 1.46]
+  Significant cells with n<30 (unstable): db/태아·어린이보험(23), hyundai/상품 설계·고객후기(9), hyundai/실손·건강보험(7), hyundai/자동차보험(8), meritz/자동차보험(13)
+  Significant but below MDE (low power, effect likely overestimated): db/자동차보험, db/태아·어린이보험, kb/실손·건강보험, samsung_fire/태아·어린이보험
+
+Minimum detectable effect for kb (n=355):
+  보험금 청구·보상          n= 33  p_others=5.1%  observed= 1.81x  detectable: under n/a / over 2.08x
+  상품 설계·고객후기         n= 72  p_others=24.2%  observed= 0.84x  detectable: under 0.55x / over 1.45x
+  실손·건강보험            n= 75  p_others=13.4%  observed= 1.58x  detectable: under 0.36x / over 1.64x
+  자동차보험              n=136  p_others=20.5%  observed= 1.87x  detectable: under 0.50x / over 1.50x
+  태아·어린이보험           n= 39  p_others=36.8%  observed= 0.30x  detectable: under 0.67x / over 1.33x
+
+Power watch for kb: brand docs needed in segment (now 355)
+  보험금 청구·보상          for 2x:    415   for 1.5x:   1660
+  상품 설계·고객후기         for 2x:     71   for 1.5x:    283
+  실손·건강보험            for 2x:    146   for 1.5x:    583
+  자동차보험              for 2x:     88   for 1.5x:    351
+  태아·어린이보험           for 2x:     39   for 1.5x:    155
+
+======================================================================
+Part 2: Brand x Category Proportion Test, segment: youtube
+======================================================================
+  (symmetric subset, n=5828)
+  (symmetric subset: target-brand product queries excluded from cross-brand test)
+  Excluded from test (category n < 30 in segment): 보험금 청구·보상(3), 실손·건강보험(5), 자동차보험(4)
+  Brand n: db=2338, hyundai=2164, kb=838, meritz=20, samsung_fire=456
+
+Omnibus chi-square: chi2=478.7, dof=8, p=2.64e-98
+Post-hoc: 15 cells, Bonferroni alpha = 0.00333, MDE power = 80%
+
+Significant over/under-indexing (Bonferroni, alpha=0.05): 7 cells, 7 robust to leave-one-out
+  db             상품 설계·고객후기          6.29x  (4.7% vs 0.8%)  z=+9.8  over  loo 2.94-8.28x  robust
+  db             브랜드 캠페인             0.91x  (66.5% vs 73.1%)  z=-5.4  under  loo 0.85-1.15x  robust
+  hyundai        브랜드 캠페인             1.30x  (82.3% vs 63.4%)  z=+15.3  over  loo 1.23-1.42x  robust
+  hyundai        이벤트·프로모션            0.53x  (17.4% vs 33.1%)  z=-12.9  under  loo 0.43-0.59x  robust
+  hyundai        상품 설계·고객후기          0.06x  (0.2% vs 3.6%)  z=-8.2 (fisher)  under  loo 0.05-0.14x  robust
+  samsung_fire   이벤트·프로모션            2.42x  (59.2% vs 24.5%)  z=+16.0  over  loo 2.02-2.80x  robust
+  samsung_fire   브랜드 캠페인             0.53x  (39.0% vs 73.1%)  z=-15.3  under  loo 0.50-0.58x  robust
+  Small cells (n<30, Fisher p, shrunk ratio [95% interval]):
+    hyundai        상품 설계·고객후기         n=  5  0.06x -> 0.07x [0.03, 0.14]
+    kb             상품 설계·고객후기         n= 11  0.52x -> 0.53x [0.27, 0.88]
+    meritz         브랜드 캠페인            n=  8  0.57x -> 0.78x [0.57, 0.99]
+    meritz         이벤트·프로모션           n= 10  1.84x -> 1.42x [0.90, 1.99]
+    samsung_fire   상품 설계·고객후기         n=  8  0.73x -> 0.75x [0.33, 1.32]
+  Significant cells with n<30 (unstable): hyundai/상품 설계·고객후기(5)
+  Cells not tested (n<5): meritz/상품 설계·고객후기(2)
+
+Minimum detectable effect for kb (n=838):
+  브랜드 캠페인            n=574  p_others=70.8%  observed= 0.97x  detectable: under 0.91x / over 1.09x
+  상품 설계·고객후기         n= 11  p_others=2.5%  observed= 0.52x  detectable: under 0.12x / over 1.88x
+  이벤트·프로모션           n=253  p_others=26.7%  observed= 1.13x  detectable: under 0.77x / over 1.23x
+
+Power watch for kb: brand docs needed in segment (now 838)
+  브랜드 캠페인            for 2x:      7   for 1.5x:     28
+  상품 설계·고객후기         for 2x:    648   for 1.5x:   2589
+  이벤트·프로모션           for 2x:     46   for 1.5x:    183
+
+======================================================================
+Part 2: Brand x Category Proportion Test, segment: all_pooled
+======================================================================
+  (symmetric subset, n=8063)
+  (symmetric subset: target-brand product queries excluded from cross-brand test)
+  Brand n: db=2619, hyundai=2694, kb=1390, meritz=478, samsung_fire=882
+
+Omnibus chi-square: chi2=3135.6, dof=24, p=0.00e+00
+Post-hoc: 35 cells, Bonferroni alpha = 0.00143, MDE power = 80%
+
+Significant over/under-indexing (Bonferroni, alpha=0.05): 28 cells, 22 robust to leave-one-out
+  db             이벤트·프로모션            1.53x  (25.8% vs 16.9%)  z=+9.4  over  loo 1.32-1.82x  robust
+  db             브랜드 캠페인             1.27x  (59.3% vs 46.7%)  z=+10.6  over  loo 1.14-2.14x  robust
+  db             상품 설계·고객후기          0.69x  (7.5% vs 10.9%)  z=-4.8  under  loo 0.38-1.05x  fragile: drops without meritz
+  db             자동차보험               0.55x  (3.3% vs 6.0%)  z=-5.1  under  loo 0.29-0.85x  fragile: drops without kb,samsung_fire
+  db             실손·건강보험             0.30x  (2.0% vs 6.7%)  z=-8.8  under  loo 0.17-0.40x  robust
+  db             태아·어린이보험            0.12x  (1.4% vs 11.5%)  z=-15.5  under  loo 0.10-0.18x  robust
+  hyundai        태아·어린이보험            3.42x  (15.6% vs 4.5%)  z=+17.0  over  loo 2.06-4.53x  robust
+  hyundai        브랜드 캠페인             1.53x  (66.1% vs 43.1%)  z=+19.5  over  loo 1.39-2.39x  robust
+  hyundai        이벤트·프로모션            0.62x  (14.1% vs 22.6%)  z=-9.1  under  loo 0.57-0.72x  robust
+  hyundai        보험금 청구·보상           0.24x  (0.4% vs 1.6%)  z=-4.7 (fisher)  under  loo 0.15-0.33x  robust
+  hyundai        실손·건강보험             0.17x  (1.2% vs 7.1%)  z=-11.4  under  loo 0.10-0.21x  robust
+  hyundai        상품 설계·고객후기          0.15x  (2.0% vs 13.7%)  z=-16.6  under  loo 0.10-0.20x  robust
+  hyundai        자동차보험               0.08x  (0.6% vs 7.4%)  z=-13.0 (fisher)  under  loo 0.05-0.10x  robust
+  kb             보험금 청구·보상           3.40x  (2.8% vs 0.8%)  z=+6.3  over  loo 2.48-4.39x  robust <- TARGET
+  kb             자동차보험               3.32x  (12.1% vs 3.6%)  z=+13.0  over  loo 2.12-5.55x  robust <- TARGET
+  kb             실손·건강보험             2.19x  (9.3% vs 4.3%)  z=+7.8  over  loo 1.47-3.33x  robust <- TARGET
+  kb             브랜드 캠페인             0.78x  (41.4% vs 52.8%)  z=-7.8  under  loo 0.72-0.95x  fragile: drops without hyundai <- TARGET
+  kb             태아·어린이보험            0.47x  (4.2% vs 9.0%)  z=-5.9  under  loo 0.30-0.91x  fragile: drops without hyundai <- TARGET
+  meritz         상품 설계·고객후기          6.87x  (49.8% vs 7.2%)  z=+30.4  over  loo 4.92-8.04x  robust
+  meritz         실손·건강보험             5.79x  (23.2% vs 4.0%)  z=+18.4  over  loo 4.18-8.27x  robust
+  meritz         태아·어린이보험            2.05x  (15.9% vs 7.7%)  z=+6.3  over  loo 1.43-4.63x  fragile: drops without db
+  meritz         이벤트·프로모션            0.11x  (2.3% vs 20.9%)  z=-9.9 (fisher)  under  loo 0.09-0.13x  robust
+  meritz         브랜드 캠페인             0.03x  (1.9% vs 53.9%)  z=-22.1 (fisher)  under  loo 0.03-0.04x  robust
+  samsung_fire   자동차보험               3.24x  (13.3% vs 4.1%)  z=+11.7  over  loo 2.14-6.10x  robust
+  samsung_fire   실손·건강보험             2.22x  (10.1% vs 4.5%)  z=+7.0  over  loo 1.54-3.15x  robust
+  samsung_fire   상품 설계·고객후기          1.68x  (15.3% vs 9.1%)  z=+5.9  over  loo 1.15-2.47x  fragile: drops without hyundai
+  samsung_fire   이벤트·프로모션            1.68x  (30.8% vs 18.4%)  z=+8.8  over  loo 1.47-2.18x  robust
+  samsung_fire   브랜드 캠페인             0.37x  (20.2% vs 54.6%)  z=-19.3  under  loo 0.35-0.42x  robust
+  Small cells (n<30, Fisher p, shrunk ratio [95% interval]):
+    db             보험금 청구·보상          n= 18  0.49x -> 0.50x [0.30, 0.75]
+    hyundai        보험금 청구·보상          n= 10  0.24x -> 0.24x [0.12, 0.41]
+    hyundai        자동차보험              n= 16  0.08x -> 0.09x [0.05, 0.13]
+    meritz         보험금 청구·보상          n=  9  1.68x -> 1.65x [0.77, 2.86]
+    meritz         브랜드 캠페인            n=  9  0.03x -> 0.07x [0.05, 0.11]
+    meritz         이벤트·프로모션           n= 11  0.11x -> 0.15x [0.08, 0.23]
+    meritz         자동차보험              n= 24  0.98x -> 0.98x [0.64, 1.39]
+    samsung_fire   보험금 청구·보상          n= 18  1.93x -> 1.91x [1.14, 2.87]
+  Significant cells with n<30 (unstable): hyundai/보험금 청구·보상(10), hyundai/자동차보험(16), meritz/브랜드 캠페인(9), meritz/이벤트·프로모션(11)
+
+Minimum detectable effect for kb (n=1390):
+  보험금 청구·보상          n= 39  p_others=0.8%  observed= 3.40x  detectable: under n/a / over 2.30x
+  브랜드 캠페인            n=575  p_others=52.8%  observed= 0.78x  detectable: under 0.89x / over 1.11x
+  상품 설계·고객후기         n=164  p_others=9.3%  observed= 1.26x  detectable: under 0.63x / over 1.37x
+  실손·건강보험            n=130  p_others=4.3%  observed= 2.19x  detectable: under 0.44x / over 1.56x
+  이벤트·프로모션           n=255  p_others=20.1%  observed= 0.91x  detectable: under 0.76x / over 1.24x
+  자동차보험              n=168  p_others=3.6%  observed= 3.32x  detectable: under 0.39x / over 1.61x
+  태아·어린이보험           n= 59  p_others=9.0%  observed= 0.47x  detectable: under 0.62x / over 1.38x
+
+Power watch for kb: brand docs needed in segment (now 1390)
+  보험금 청구·보상          for 2x:   2362   for 1.5x:   9448
+  브랜드 캠페인            for 2x:     18   for 1.5x:     71
+  상품 설계·고객후기         for 2x:    191   for 1.5x:    762
+  실손·건강보험            for 2x:    440   for 1.5x:   1760
+  이벤트·프로모션           for 2x:     79   for 1.5x:    313
+  자동차보험              for 2x:    520   for 1.5x:   2078
+  태아·어린이보험           for 2x:    198   for 1.5x:    789
+
+======================================================================
+Part 3: Lead-Lag Analysis (MSTL residual cross-correlation)
+======================================================================
+  kb             n= 30w  best lag=+6  r=-0.4641 <- TARGET
+  samsung_fire   n= 45w  best lag=-3  r=-0.2129
+  db             n= 33w  best lag=-6  r=-0.4056
+  hyundai        n= 64w  best lag=+0  r=+0.2565
+  meritz         n= 12w  best lag=+1  r=+0.4663
+
+JSON exported: data/exports/lead_lag_results.json
+
+======================================================================
+Part 4: Representative documents
+======================================================================
+Saved 319 representatives to mart.topic_representatives
+
+Target brand negative representatives (sample):
+  [보험금 청구·보상] 보험상담 받기 전에 꼭 준비할 것, 그리고 이런 말이 나오면 멈추세요 다만 개인정보 보호를 위해 꼭 금융감독원, 손해보험, 생명보험... 오래된 실손보험이나 비갱
+  [보험금 청구·보상] 기사공유 하지정맥류 수술 후 실손보험금, 입원과 통원은 어떻게 판단할.... 하지정맥류 실손보험금 논란 입원 기준 놓고 의료계도 이견 왜 입원했는데도 보험금이 달
+  [보험금 청구·보상] 직장 내분비종양 진단 및 시술결과 후기보니 kb보험4일만에 받았다고 하셨는데 저는 일줄째 소식 없음. 제 보험설계사분이 손해정사에서 연락 올거라고 하셨는데 전화도
+  [브랜드 캠페인] 9 12 시티 촬영을 거부하시는 어머니께 포토샵 하면 예쁘게 잘 나온다며 유쾌하게 탈출구를 만들어주시는 아버님의 모습이 너무 인상 깊었습니다. 비극적인 상황 속에
+  [브랜드 캠페인] 선생님 알레르기 비염이라 매일 아바미스 쓰고 있습니다. 제가 임신을 했는데 알레르기쌤과 산부인과쌤음 괜찮다 하시고 이비인후과 샘음 초기엔 안좋다 이미 써버렸는..
+
+======================================================================
+Signal analysis complete.
+  mart.content_signal_matrix, mart.topic_representatives
+  data/exports/content_signal_matrix.csv
+  data/exports/brand_category_test.csv
+  data/exports/lead_lag_results.json
+  data/exports/topic_representatives.csv
+Loaded 750 rows from mart.brand_search_weekly
+
+Detected 21 anomalies (min 2/3 methods agree)
+  DB손해보험 | 2024-09-16 | ratio=31.1 | z=-2.82 | methods=3/3
+  DB손해보험 | 2025-01-27 | ratio=31.6 | z=-2.73 | methods=3/3
+  DB손해보험 | 2025-10-06 | ratio=28.2 | z=-3.27 | methods=3/3
+  DB손해보험 | 2025-12-08 | ratio=70.0 | z=3.29 | methods=2/3
+  DB손해보험 | 2026-11-09 | ratio=16.5 | z=-5.11 | methods=3/3
+  KB손해보험 | 2025-01-27 | ratio=40.3 | z=-1.74 | methods=2/3
+  KB손해보험 | 2026-10-05 | ratio=32.9 | z=-2.65 | methods=2/3
+  KB손해보험 | 2026-11-09 | ratio=15.4 | z=-4.81 | methods=3/3
+  메리츠화재 | 2025-03-10 | ratio=45.3 | z=2.53 | methods=2/3
+  메리츠화재 | 2025-10-06 | ratio=15.8 | z=-3.18 | methods=3/3
+  메리츠화재 | 2026-09-21 | ratio=18.7 | z=-2.63 | methods=2/3
+  메리츠화재 | 2026-11-09 | ratio=9.9 | z=-4.32 | methods=2/3
+  삼성화재 | 2024-01-15 | ratio=83.0 | z=3.00 | methods=2/3
+  삼성화재 | 2025-10-06 | ratio=33.8 | z=-2.79 | methods=3/3
+  삼성화재 | 2025-12-08 | ratio=100.0 | z=4.99 | methods=3/3
+  삼성화재 | 2026-11-09 | ratio=18.3 | z=-4.61 | methods=3/3
+  현대해상 | 2024-09-16 | ratio=40.5 | z=-2.20 | methods=2/3
+  현대해상 | 2025-10-06 | ratio=32.0 | z=-3.41 | methods=3/3
+  현대해상 | 2026-02-23 | ratio=73.6 | z=2.51 | methods=2/3
+  현대해상 | 2026-09-21 | ratio=38.2 | z=-2.53 | methods=2/3
+  현대해상 | 2026-11-09 | ratio=18.2 | z=-5.36 | methods=3/3
+  ok   rebuild_marts (28s)
+  target week: 2026-W45 (2026-11-02, settle=3d)
+[snapshot] saved 2026-W45; alerts: 0
+  ok   snapshot (1s)
+  ok   export_staging (0s)
+Target: KB손해보험 | Week: 2026-W45 (2026-11-02)
+Narrative generated (3190 chars)
+PDF generated: data/exports/cx_weekly_report_2026-W45_kb.pdf
+Report saved to mart.weekly_report (+ .md sidecar)
+
+======================================================================
+REPORT PREVIEW
+======================================================================
+# KB손해보험 CX Weekly Report 2026-W45
+
+---
+
+## 1. 핵심 요약
+
+KB손해보험 SoV가 전주 3위(21.42%)에서 4위(20.66%)로 하락하며 WoW -9.5%를 기록했다 [통계 검증 패스]. web_advisor 세그먼트에서 자동차보험 콘텐츠 집중도가 경쟁사 대비 1.87x로 유의하게 높고 [통계 검증 패스], 보상 처리 지연 관련 부정 VoC 패턴이 관찰된다 [정성 시그널]. 긍정 감성은 전주 대비 -4.2pp 감소해 모니터링이 필요하다 [cluster 시그널].
+
+---
+
+## 2. 전주 대비 변화
+
+| 항목 | 전주 | 금주 | 비고 |
+|------|------|------|------|
+| SoV 순위 | 3위 (21.42%) | 4위 (20.66%) | [통계 검증 패스] |
+| DB손해보험 | 4위 (20.45%) | 3위 (21.14%) | [통계 검증 패스] |
+| Positive 감성 | 44.2% | 40.0% | -4.2pp [cluster 시그널] |
+| Negative 감성 | 8.2% | 9.0% | +0.8pp [cluster 시그널] |
+
+**⚠️ 순위 알림:** KB손해보험이 DB손해보험에 역전되어 빅4 내 최하위로 진입. 감성 악화도 동시 관찰.
+
+---
+
+## 3. 브랜드 검색 관심도
+
+**KB손해보험 SoV 20.7%, WoW -9.5%** [통계 검증 패스]
+
+빅4 전체가 하락세이나(현대해상 -2.5%, 삼성화재 -6.5%, DB손해보험 -3.0%) KB손해보험(-9.5%)과 메리츠화재(-11.7%)의 낙폭이 상대적으로 크다. 경쟁사 대비 KB손해보험의 하락 폭이 두드러진다 [통계 검증 패스].
+
+**원인 후보 (인과 단정 불가)**
+- 콘텐츠: 주간 신규 영상 1건, 콘텐츠 공급량이 검색 견인에 충분했는지 미확인
+- 시즌: 11월 초 시점의 비수기 전환 가능성
+- 캠페인: 경쟁사 대비 캠페인 집행 강도 차이 가능성
+- 기타: 2026-10-05 이상 이벤트(search_ratio 급락) 이후 회복 지연 가능성
+
+---
+
+## 4. VoC 구성·감성
+
+**[web_customer 세그먼트 | 블로그·카페 고객 작성 글, n=173]**
+- **상품 설계·고객후기:** 1.34x — 경쟁사와 차이 없음(검출 범위 0.56–1.44x 내) [통계 검증 패스]
+- **실손·건강보험:** 1.37x — 경쟁사와 차이 없음(검출 범위 0.36–1.64x 내) [통계 검증 패스]
+- **자동차보험:** 관측 1.64x(n=25), 수축 추정 1.57x [1.06, 2.16] — **미확정** (2.03x 이상 과대만 검출 가능, 과소 방향 검출 불가) [표본 부족]
+- **태아·어린이보험:** 현대해상 제외 시 유의성 소실 → KB손해보험 특성으로 해석하지 않음 [cluster 시그널]
+
+**[web_advisor 세그먼트 | 블로그·카페 설계사·비교 콘텐츠, n=355]**
+- **자동차보험:** **1.87x** (38.3% vs 경쟁사 20.5%), LOO 1.45–2.80x — 설계사·비교 콘텐츠에서 KB 자동차보험 집중도가 유의하게 높음 [통계 검증 패스]
+- **태아·어린이보험:** **0.30x** (11.0% vs 경쟁사 36.8%), LOO 0.25–0.57x — 유의한 과소 [통계 검증 패스]
+- **실손·건강보험:** 현대해상 제외 시 유의성 소실 → KB손해보험 특성으로 해석하지 않음 [cluster 시그널]
+
+**[youtube 세그먼트 | 공식 채널, 금주 1건]**
+- 조회 71,513, 댓글 135, engagement 1.083% [cluster 시그널]
+- 소스를 합친 전체 비중 수치는 채널 규모 반영으로 브랜드 특성 해석 불가
+
+**감성 (최근 5주 롤링, n=917):** Positive 40.0% / Neutral 51.0% / Negative 9.0% [cluster 시그널: 작성자 미구분 집계]
+
+---
+
+## 5. 대표 고객 목소리
+
+**[부정 | 보험금 청구·보상]**
+> "직장 내분비종양 진단 및 시술결과 후기보니 kb보험4일만에 받았다고 하셨는데 저는 일줄째 소식 없음. 제 보험설계사분이 손해정사에서 연락 올거라고 하셨는데 전화도 없음. 이상 제 시술 후기입니다." [정성 시그널]
+
+→ 보상 처리 대기 지연 관련 패턴 관찰. 기대 처리 기간 대비 소요 지연 연관 가능성.
+
+**[부정 | 실손·건강보험 청구 여정]**
+> "퇴원 후 외래 실비청구 고런게 있다는걸 알고 제가 한번 해보려고 하는데 생각보다 너무 어렵네요 심지어는 손해보험인데 생명보험으로 접수를 해버려서 다시 해야하는 상황까지ㅠㅠ 근데 실손24를 보니깐 뇌" [정성 시그널]
+
+→ 청구 채널 오접수 및 UI 복잡성 관련 패턴 관찰.
+
+**[긍정 | 캠페인·브랜드]**
+> "키나, 아테나 맏막즈..너무 귀여워요! 이번에 웰니스 어떤 걸 할지 정말 기대되네요! 감다살 KB손해보험" [정성 시그널]
+
+→ youtube 세그먼트 내 캠페인 캐릭터·웰니스 콘텐츠에 대한 긍정 반응 패턴 관찰.
+
+---
+
+## 6. 이상 이벤트
+
+| 일자 | 내용 | 신호 |
+|------|------|------|
+| 2026-10-05 | search_ratio=32.9 (z=−2.65, 2/3 methods 확인) | [통계 검증 패스] |
+
+4주 전 시점에 검색 관심도 비정상 급락이 통계적으로 확인됨. 해당 주의 콘텐츠·뉴스·캠페인 집행 현황 역추적 권고. 현재 SoV 회복 미완 상태로, 금주 하락폭(-9.5%)과의 연속성 연관 가능성 있으나 인과 단정 불가.
+
+---
+
+## 7. 참고 신호·데이터 한계
+
+- **Lead-Lag:** 최강 시차 lag=+6주, r=−0.464 [정성 시그널] — 전체 VoC 볼륨 기반 산출이며 설계사 콘텐츠·광고 물량 교란 가능성이 있어 **해석 보류**
+- **표본 한계:** web_customer 자동차보험 셀 n=25로 소표본. 2.03x 이상 과대만 검출 가능하며 현재 추정치(1.57x)는 미확정으로 유지 [표본 부족]
+- **감성 집계:** n=917, 작성자(고객/설계사) 미구분 집계. 세그먼트별 분리 해석 불가 [cluster 시그널]
+- **youtube 세그먼트:** 대칭 수집 서브셋(타겟 브랜드 상품별 쿼리 제외) 적용. 소스 합산 비중은 채널 규모 반영으로 브랜드 특성 해석 제외
+- **긍정 VoC 혼입 주의:** 5번 항목 중 농협손해보험 관련 긍정 후기가 혼입된 것으로 판단되어 본문 인용에서 제외함
+  ok   report (51s)
+
+============================================================
+Done 2026-W45 | new 0 | category review 0% -> rescued 0 -> final review 0 | author review 0%, filtered 104
+No alerts.

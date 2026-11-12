@@ -169,23 +169,21 @@
       "brand_reassigned": 0,
       "confirmed": 0,
       "review_rate": 0.0,
-      "rescued_by_llm": 181,
+      "rescued_by_llm": 0,
       "final_review": 0,
-      "author_web_docs": 510,
+      "author_web_docs": 0,
       "author_confirmed": 0,
-      "author_review_rate": 1.0,
-      "author_llm_labeled": 485,
-      "author_filtered": 0,
-      "llm_share": 0.3553,
+      "author_review_rate": 0.0,
+      "author_llm_labeled": 0,
+      "author_filtered": 104,
+      "llm_share": 0.0,
       "total_docs": 16650,
-      "outlier_rate_total": 0.2187,
+      "outlier_rate_total": 0.225,
       "review_queue": 0
     }
   },
   "diff": {
-    "alerts": [
-      "작성자 분류기 LLM 검토 비율 100% (40% 이상), 작성자 분류기 재학습 검토"
-    ],
+    "alerts": [],
     "sov": [
       {
         "brand": "db",

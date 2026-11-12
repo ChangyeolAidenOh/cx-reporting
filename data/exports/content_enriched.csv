@@ -33,9 +33,9 @@
 28600,samsung_fire,query,blog,-1,noise,,,review_noise,0.595,unrelated,haiku
 27939,kb,query,cafearticle,-1,noise,,,author_filter,0.513,unrelated,haiku
 14231,samsung_fire,query,blog,4,noise,,,mapping,,unrelated,haiku
-28894,kb,query,blog,-2,자동차보험,positive,0.5,classifier,0.904,unrelated,haiku
 14365,samsung_fire,query,blog,103,noise,,,mapping,,unrelated,haiku
 28652,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
+28894,kb,query,blog,-1,noise,positive,0.5,author_filter,0.904,unrelated,haiku
 23469,db,query,youtube_comment,24,이벤트·프로모션,neutral,0.0,mapping,,customer,rule
 23470,db,query,youtube_comment,24,이벤트·프로모션,neutral,0.0,mapping,,customer,rule
 23471,db,query,youtube_comment,24,이벤트·프로모션,neutral,0.0,mapping,,customer,rule
@@ -79,8 +79,8 @@
 18720,hyundai,query,cafearticle,4,noise,,,mapping,,unrelated,haiku
 28496,kb,query,blog,-1,noise,,,review_noise,0.29,unrelated,haiku
 28501,kb,query,blog,-2,실손·건강보험,neutral,0.0,classifier,0.716,advisor,haiku
-28512,kb,query,blog,-2,이벤트·프로모션,neutral,0.1,classifier,0.703,unrelated,haiku
-28523,kb,query,blog,-2,보험금 청구·보상,neutral,0.0,classifier,0.709,unrelated,haiku
+28512,kb,query,blog,-1,noise,neutral,0.1,author_filter,0.703,unrelated,haiku
+28523,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.709,unrelated,haiku
 28532,kb,query,blog,-2,noise,,,classifier,0.807,unrelated,haiku
 28559,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
 28567,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
@@ -95,9 +95,9 @@
 28635,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
 28576,kb,query,blog,-1,noise,,,review_noise,0.609,advisor,haiku
 28582,kb,query,blog,-1,noise,,,review_noise,0.415,unrelated,haiku
-28578,kb,query,blog,-2,실손·건강보험,positive,0.6,classifier,0.71,unrelated,haiku
 28606,samsung_fire,query,blog,-2,상품 설계·고객후기,positive,0.7,llm,0.613,advisor,haiku
-28621,samsung_fire,query,blog,-2,브랜드 캠페인,neutral,0.0,classifier,0.789,unrelated,haiku
+28578,kb,query,blog,-1,noise,positive,0.6,author_filter,0.71,unrelated,haiku
+28621,samsung_fire,query,blog,-1,noise,neutral,0.0,author_filter,0.789,unrelated,haiku
 28641,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
 28646,samsung_fire,query,blog,-2,noise,,,classifier,0.93,unrelated,haiku
 22536,samsung_fire,query,youtube_comment,14,브랜드 캠페인,neutral,0.0,mapping,,customer,rule
@@ -105,36 +105,36 @@
 28674,db,query,blog,-1,noise,,,review_noise,0.415,advisor,haiku
 28678,db,query,blog,-1,noise,,,review_noise,0.306,media,haiku
 28648,samsung_fire,query,blog,-2,자동차보험,negative,-0.2,classifier,0.788,advisor,haiku
-28649,samsung_fire,query,blog,-2,이벤트·프로모션,positive,0.7,llm,0.299,unrelated,haiku
 28655,hyundai,query,blog,-2,태아·어린이보험,neutral,0.0,classifier,1.0,advisor,haiku
-28676,db,query,blog,-2,브랜드 캠페인,neutral,0.0,classifier,0.898,unrelated,haiku
+28649,samsung_fire,query,blog,-1,noise,positive,0.7,author_filter,0.299,unrelated,haiku
+28676,db,query,blog,-1,noise,neutral,0.0,author_filter,0.898,unrelated,haiku
 27212,kb,query,blog,-1,noise,,,author_filter,0.599,unrelated,haiku
 27232,kb,query,blog,-1,noise,,,author_filter,0.692,unrelated,haiku
 27235,kb,query,blog,-1,noise,,,author_filter,0.505,unrelated,haiku
 28679,db,query,blog,-1,noise,,,review_noise,0.61,unrelated,haiku
-28681,db,query,blog,-2,브랜드 캠페인,neutral,0.0,classifier,0.703,unrelated,haiku
 28693,db,query,blog,-2,태아·어린이보험,neutral,0.15,classifier,1.0,customer,sonnet
 28709,db,query,blog,-2,실손·건강보험,neutral,0.2,classifier,1.0,advisor,haiku
+28681,db,query,blog,-1,noise,neutral,0.0,author_filter,0.703,unrelated,haiku
 27268,kb,query,blog,-1,noise,,,author_filter,0.603,unrelated,haiku
 27285,kb,query,blog,-1,noise,,,author_filter,0.604,unrelated,haiku
 27302,samsung_fire,query,blog,-1,noise,,,author_filter,0.558,unrelated,haiku
 28740,hyundai,query,blog,-2,noise,,,classifier,0.807,unrelated,haiku
 28716,hyundai,query,blog,-1,noise,,,review_noise,0.408,unrelated,haiku
 27312,samsung_fire,query,blog,-1,noise,,,author_filter,0.433,unrelated,haiku
-28729,hyundai,query,blog,-2,태아·어린이보험,neutral,0.0,classifier,1.0,unrelated,haiku
 28733,hyundai,query,blog,-2,태아·어린이보험,positive,0.8,classifier,1.0,advisor,haiku
 28738,hyundai,query,blog,-2,태아·어린이보험,neutral,0.3,classifier,1.0,advisor,haiku
+28729,hyundai,query,blog,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 27323,samsung_fire,query,blog,-1,noise,,,author_filter,0.489,unrelated,haiku
 27324,samsung_fire,query,blog,-1,noise,,,author_filter,0.608,unrelated,haiku
-28761,hyundai,query,blog,-2,브랜드 캠페인,negative,-0.9,classifier,1.0,unrelated,haiku
 28771,hyundai,query,blog,-2,태아·어린이보험,neutral,0.0,classifier,1.0,advisor,haiku
+28761,hyundai,query,blog,-1,noise,negative,-0.9,author_filter,1.0,unrelated,haiku
 27377,samsung_fire,query,blog,-1,noise,,,author_filter,0.617,unrelated,haiku
 28772,hyundai,query,blog,-2,noise,,,classifier,0.908,unrelated,haiku
 27379,samsung_fire,query,blog,-1,noise,,,author_filter,0.575,unrelated,haiku
 28775,hyundai,query,blog,-2,태아·어린이보험,positive,0.5,classifier,1.0,advisor,haiku
-28788,hyundai,query,blog,-2,실손·건강보험,positive,0.55,classifier,0.709,unrelated,haiku
-28789,hyundai,query,blog,-2,실손·건강보험,positive,0.55,classifier,0.811,unrelated,haiku
 28792,hyundai,query,blog,-2,태아·어린이보험,positive,0.65,classifier,1.0,advisor,haiku
+28788,hyundai,query,blog,-1,noise,positive,0.55,author_filter,0.709,unrelated,haiku
+28789,hyundai,query,blog,-1,noise,positive,0.55,author_filter,0.811,unrelated,haiku
 27446,hyundai,query,blog,-1,noise,,,author_filter,0.699,unrelated,haiku
 27451,hyundai,query,blog,-1,noise,,,author_filter,0.498,unrelated,haiku
 27454,hyundai,query,blog,-1,noise,,,author_filter,0.405,unrelated,haiku
@@ -148,33 +148,33 @@
 28830,meritz,query,blog,-2,noise,,,classifier,0.795,unrelated,haiku
 28277,general,query,cafearticle,-1,noise,,,author_filter,0.402,unrelated,haiku
 28846,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
-28818,meritz,query,blog,-2,태아·어린이보험,positive,0.8,llm,0.301,unrelated,haiku
-28832,meritz,query,blog,-2,실손·건강보험,negative,-0.6,classifier,0.796,unrelated,haiku
 28835,samsung_fire,query,blog,-2,실손·건강보험,positive,0.6,classifier,1.0,advisor,haiku
+28818,meritz,query,blog,-1,noise,positive,0.8,author_filter,0.301,unrelated,haiku
+28832,meritz,query,blog,-1,noise,negative,-0.6,author_filter,0.796,unrelated,haiku
 27555,kb,query,blog,-1,noise,,,author_filter,0.405,unrelated,haiku
 28862,meritz,query,blog,-2,noise,,,classifier,0.905,unrelated,haiku
 27576,kb,query,blog,-1,noise,,,author_filter,0.606,unrelated,haiku
 27628,kb,query,blog,-1,noise,,,author_filter,0.699,unrelated,haiku
 28857,meritz,query,blog,-1,noise,,,review_noise,0.599,unrelated,haiku
 28863,meritz,query,blog,-1,noise,,,review_noise,0.399,unrelated,haiku
-28849,meritz,query,blog,-2,실손·건강보험,positive,0.65,classifier,0.72,unrelated,haiku
 28865,meritz,query,blog,-2,상품 설계·고객후기,neutral,0.1,classifier,0.742,advisor,haiku
+28849,meritz,query,blog,-1,noise,positive,0.65,author_filter,0.72,unrelated,haiku
 27664,kb,query,blog,-1,noise,,,author_filter,0.685,unrelated,haiku
 27689,kb,query,blog,-1,noise,,,author_filter,0.605,unrelated,haiku
 27727,general,query,blog,-1,noise,,,author_filter,0.485,unrelated,haiku
 27735,general,query,blog,-1,noise,,,author_filter,0.597,unrelated,haiku
 28876,meritz,query,blog,-2,상품 설계·고객후기,positive,0.35,llm,0.579,advisor,haiku
 28879,meritz,query,blog,-2,실손·건강보험,neutral,0.2,classifier,1.0,advisor,haiku
-28887,kb,query,blog,-2,자동차보험,negative,-0.25,classifier,1.0,unrelated,haiku
+28887,kb,query,blog,-1,noise,negative,-0.25,author_filter,1.0,unrelated,haiku
 27749,general,query,blog,-1,noise,,,author_filter,0.504,unrelated,haiku
 27767,general,query,blog,-1,noise,,,author_filter,0.596,unrelated,haiku
 27811,general,query,blog,-1,noise,,,author_filter,0.602,unrelated,haiku
 27869,kb,query,cafearticle,-1,noise,,,author_filter,0.593,unrelated,haiku
 28926,kb,query,blog,-2,noise,,,classifier,0.717,unrelated,haiku
 28934,kb,query,blog,-2,noise,,,classifier,0.7,media,haiku
-28905,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,0.806,unrelated,haiku
-28914,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
 28931,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,0.702,advisor,haiku
+28905,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.806,unrelated,haiku
+28914,kb,query,blog,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 27962,kb,query,cafearticle,-1,noise,,,author_filter,0.558,unrelated,haiku
 28008,db,query,cafearticle,-1,noise,,,author_filter,0.608,unrelated,haiku
 28022,db,query,cafearticle,-1,noise,,,author_filter,0.394,unrelated,haiku
@@ -195,14 +195,14 @@
 28264,general,query,cafearticle,-1,noise,,,author_filter,0.596,unrelated,haiku
 28999,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,0.901,advisor,haiku
 29000,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,haiku
-29004,kb,query,blog,-2,상품 설계·고객후기,neutral,0.1,classifier,0.903,unrelated,haiku
+29004,kb,query,blog,-1,noise,neutral,0.1,author_filter,0.903,unrelated,haiku
 29033,kb,query,blog,-2,noise,,,classifier,0.72,unrelated,haiku
 23906,db,query,youtube_comment,6,이벤트·프로모션,positive,0.8,mapping,,customer,rule
 29034,kb,query,blog,-2,자동차보험,negative,-0.155,classifier,1.0,advisor,haiku
 29036,kb,query,blog,-2,자동차보험,positive,0.2,classifier,0.799,media,haiku
 29037,kb,query,blog,-2,자동차보험,negative,-0.325,classifier,0.902,media,haiku
 29046,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,0.797,advisor,haiku
-29048,kb,query,blog,-2,자동차보험,negative,-0.25,classifier,0.804,unrelated,haiku
+29048,kb,query,blog,-1,noise,negative,-0.25,author_filter,0.804,unrelated,haiku
 27798,general,query,blog,-1,noise,,,author_filter,0.48,unrelated,haiku
 27816,general,query,blog,-1,noise,,,author_filter,0.508,unrelated,haiku
 29057,kb,query,blog,-2,noise,,,classifier,0.705,media,haiku
@@ -211,41 +211,41 @@
 28297,general,query,cafearticle,-1,noise,,,author_filter,0.41,unrelated,haiku
 28341,general,query,cafearticle,-1,noise,,,author_filter,0.409,unrelated,haiku
 27755,general,query,blog,-1,noise,,,author_filter,0.572,unrelated,haiku
-29056,kb,query,blog,-2,자동차보험,neutral,0.1,classifier,0.701,unrelated,haiku
 29059,kb,query,blog,-2,실손·건강보험,negative,-0.45,classifier,0.805,advisor,haiku
+29056,kb,query,blog,-1,noise,neutral,0.1,author_filter,0.701,unrelated,haiku
 28106,kb,query,cafearticle,-1,noise,,,author_filter,0.551,unrelated,haiku
 28236,general,query,cafearticle,-1,noise,,,author_filter,0.603,unrelated,haiku
 29077,kb,query,blog,-2,noise,,,classifier,0.71,unrelated,haiku
 29158,general,query,blog,-2,noise,,,classifier,0.809,unrelated,haiku
-29073,kb,query,blog,-2,브랜드 캠페인,positive,0.6,classifier,1.0,unrelated,haiku
 29167,general,query,blog,-2,noise,,,classifier,0.805,unrelated,classifier
 13612,db,query,blog,4,noise,,,mapping,,unrelated,
+29073,kb,query,blog,-1,noise,positive,0.6,author_filter,1.0,unrelated,haiku
 29177,general,query,blog,-2,noise,,,classifier,0.905,unrelated,haiku
 25983,hyundai,query,youtube_comment,1,브랜드 캠페인,positive,0.8,mapping,,customer,rule
 29180,general,query,blog,-1,noise,,,review_noise,0.477,unrelated,haiku
 29187,general,query,blog,-1,noise,,,review_noise,0.301,unrelated,haiku
 29176,general,query,blog,-2,실손·건강보험,neutral,0.05,classifier,1.0,advisor,haiku
-29179,general,query,blog,-2,실손·건강보험,positive,0.2,classifier,1.0,unrelated,haiku
 29181,general,query,blog,-2,실손·건강보험,positive,0.325,classifier,0.705,advisor,haiku
+29179,general,query,blog,-1,noise,positive,0.2,author_filter,1.0,unrelated,haiku
 29205,general,query,blog,-1,noise,,,review_noise,0.491,unrelated,haiku
 29221,general,query,blog,-1,noise,,,review_noise,0.698,unrelated,haiku
 29225,general,query,blog,-1,noise,,,review_noise,0.607,unrelated,haiku
-29197,general,query,blog,-2,실손·건강보험,neutral,0.1,classifier,1.0,unrelated,haiku
-29203,general,query,blog,-2,상품 설계·고객후기,neutral,0.15,classifier,0.912,unrelated,haiku
 29207,general,query,blog,-2,보험금 청구·보상,positive,0.65,classifier,0.915,advisor,haiku
-29216,general,query,blog,-2,실손·건강보험,positive,0.6,classifier,0.797,unrelated,haiku
+29197,general,query,blog,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
+29203,general,query,blog,-1,noise,neutral,0.15,author_filter,0.912,unrelated,haiku
+29216,general,query,blog,-1,noise,positive,0.6,author_filter,0.797,unrelated,haiku
 29228,general,query,blog,-1,noise,,,review_noise,0.496,media,haiku
 14823,hyundai,query,blog,-1,noise,,,mapping,,unrelated,haiku
-29230,general,query,blog,-2,실손·건강보험,neutral,0.1,classifier,1.0,unrelated,haiku
 29231,general,query,blog,-2,자동차보험,positive,0.25,classifier,0.903,advisor,haiku
-29232,general,query,blog,-2,상품 설계·고객후기,positive,0.6,llm,0.495,unrelated,haiku
+29230,general,query,blog,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
+29232,general,query,blog,-1,noise,positive,0.6,author_filter,0.495,unrelated,haiku
 29258,kb,query,cafearticle,-2,실손·건강보험,positive,0.4,classifier,0.908,customer,haiku
 29260,kb,query,cafearticle,-2,자동차보험,positive,0.35,classifier,1.0,customer,haiku
 29263,kb,query,cafearticle,-2,상품 설계·고객후기,positive,0.52,classifier,0.709,customer,haiku
 29286,kb,query,cafearticle,-2,상품 설계·고객후기,positive,0.45,classifier,0.917,customer,haiku
 29312,kb,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.814,customer,haiku
-29316,kb,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.702,unrelated,haiku
 29319,kb,query,cafearticle,-2,상품 설계·고객후기,positive,0.7,classifier,0.811,customer,haiku
+29316,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.702,unrelated,haiku
 29320,kb,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.903,advisor,haiku
 29323,hyundai,query,cafearticle,-2,태아·어린이보험,neutral,0.1,classifier,1.0,advisor,haiku
 29329,kb,query,cafearticle,-2,상품 설계·고객후기,positive,0.3,classifier,0.832,advisor,haiku
@@ -261,32 +261,32 @@
 29410,samsung_fire,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.803,customer,haiku
 29437,samsung_fire,query,cafearticle,-2,noise,,,classifier,0.7,unrelated,haiku
 29471,db,query,cafearticle,-2,noise,,,classifier,1.0,advisor,haiku
-29419,samsung_fire,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.903,unrelated,haiku
 29422,samsung_fire,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.9,customer,haiku
 29430,samsung_fire,query,cafearticle,-2,자동차보험,positive,0.8,classifier,1.0,customer,haiku
 29451,db,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.804,advisor,haiku
 29476,db,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.899,customer,haiku
-29533,hyundai,query,cafearticle,-2,실손·건강보험,negative,-0.8,classifier,0.899,unrelated,haiku
-29571,hyundai,query,cafearticle,-2,보험금 청구·보상,neutral,0.0,classifier,0.714,unrelated,haiku
+29419,samsung_fire,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.903,unrelated,haiku
+29533,hyundai,query,cafearticle,-1,noise,negative,-0.8,author_filter,0.899,unrelated,haiku
+29571,hyundai,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.714,unrelated,haiku
 29597,meritz,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,1.0,customer,haiku
 29599,meritz,query,cafearticle,-2,상품 설계·고객후기,neutral,0.05,classifier,1.0,customer,haiku
 29603,meritz,query,cafearticle,-2,실손·건강보험,positive,0.325,classifier,0.814,customer,haiku
 29298,kb,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
-29710,kb,query,cafearticle,-2,실손·건강보험,positive,0.45,classifier,0.805,unrelated,haiku
-29711,kb,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.822,unrelated,haiku
 29714,kb,query,cafearticle,-2,태아·어린이보험,neutral,0.1,classifier,0.901,advisor,haiku
+29710,kb,query,cafearticle,-1,noise,positive,0.45,author_filter,0.805,unrelated,haiku
+29711,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.822,unrelated,haiku
 29756,kb,query,cafearticle,-2,noise,,,classifier,0.781,unrelated,haiku
 29784,kb,query,cafearticle,-2,noise,,,classifier,0.72,advisor,haiku
 29875,general,query,cafearticle,-1,noise,,,review_noise,0.393,unrelated,haiku
 29325,kb,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
-29915,general,query,cafearticle,-2,자동차보험,positive,0.2,classifier,1.0,unrelated,haiku
-29919,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
+29915,general,query,cafearticle,-1,noise,positive,0.2,author_filter,1.0,unrelated,haiku
+29919,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 29955,general,query,cafearticle,-1,noise,,,review_noise,0.602,unrelated,haiku
 29358,samsung_fire,query,cafearticle,-2,noise,,,classifier,0.806,customer,haiku
 14126,samsung_fire,query,blog,-1,noise,,,mapping,,unrelated,haiku
 29966,general,query,cafearticle,-1,noise,,,review_noise,0.401,advisor,haiku
 29950,general,query,cafearticle,-2,태아·어린이보험,neutral,-0.033,classifier,0.816,advisor,haiku
-29953,general,query,cafearticle,-2,실손·건강보험,positive,0.55,classifier,0.899,unrelated,haiku
+29953,general,query,cafearticle,-1,noise,positive,0.55,author_filter,0.899,unrelated,haiku
 29989,general,query,cafearticle,-2,noise,,,classifier,0.906,customer,haiku
 28544,kb,query,blog,-2,실손·건강보험,negative,-0.2,classifier,1.0,customer,sonnet
 29374,samsung_fire,query,cafearticle,-1,noise,,,author_filter,0.803,unrelated,classifier
@@ -370,8 +370,8 @@
 29332,kb,query,cafearticle,-1,noise,,,review_noise,0.491,customer,haiku
 29337,kb,query,cafearticle,-1,noise,,,review_noise,0.589,unrelated,haiku
 29363,samsung_fire,query,cafearticle,-1,noise,,,review_noise,0.605,unrelated,haiku
-29330,kb,query,cafearticle,-2,이벤트·프로모션,neutral,0.3,llm,0.471,unrelated,haiku
 17705,kb,query,cafearticle,-1,noise,,,mapping,,unrelated,haiku
+29330,kb,query,cafearticle,-1,noise,neutral,0.3,author_filter,0.471,unrelated,haiku
 29556,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
 29392,samsung_fire,query,cafearticle,-1,noise,,,review_noise,0.605,unrelated,classifier
 29444,samsung_fire,query,cafearticle,-1,noise,,,review_noise,0.402,unrelated,classifier
@@ -395,7 +395,7 @@
 29749,kb,query,cafearticle,-1,noise,,,review_noise,0.404,unrelated,haiku
 29788,kb,query,cafearticle,-1,noise,,,review_noise,0.497,unrelated,classifier
 18559,db,query,cafearticle,-1,noise,,,mapping,,unrelated,haiku
-29612,db,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.791,unrelated,haiku
+29612,db,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.791,unrelated,haiku
 30039,db,query,youtube_comment,-1,noise,,,review_noise,0.696,customer,rule
 30053,samsung_fire,query,youtube_comment,-1,noise,,,review_noise,0.692,customer,rule
 30054,samsung_fire,query,youtube_comment,-1,noise,,,review_noise,0.609,customer,rule
@@ -420,17 +420,13 @@
 28484,kb,query,youtube_comment,-2,브랜드 캠페인,neutral,0.0,llm,0.657,customer,rule
 19008,meritz,query,cafearticle,-1,noise,,,mapping,,unrelated,haiku
 28533,kb,query,blog,-2,상품 설계·고객후기,neutral,0.2,llm,0.305,advisor,classifier
-28558,kb,query,blog,-2,실손·건강보험,negative,-0.4,classifier,0.921,unrelated,haiku
 28564,kb,query,blog,-2,실손·건강보험,neutral,0.0,classifier,1.0,advisor,classifier
 28572,kb,query,blog,-2,자동차보험,neutral,-0.1,classifier,0.805,customer,sonnet
-28573,kb,query,blog,-2,실손·건강보험,positive,0.5,classifier,0.904,unrelated,haiku
 28589,samsung_fire,query,blog,-2,자동차보험,positive,0.7,llm,0.61,customer,sonnet
 28631,samsung_fire,query,blog,-2,자동차보험,neutral,0.0,llm,0.537,advisor,haiku
-28639,samsung_fire,query,blog,-2,실손·건강보험,neutral,0.0,llm,0.611,unrelated,sonnet
 28666,samsung_fire,query,blog,-2,이벤트·프로모션,neutral,0.0,llm,0.699,customer,sonnet
 28670,samsung_fire,query,blog,-2,보험금 청구·보상,neutral,-0.1,llm,0.621,customer,sonnet
 28691,db,query,blog,-2,상품 설계·고객후기,neutral,0.1,llm,0.496,advisor,haiku
-28735,hyundai,query,blog,-2,태아·어린이보험,positive,0.7,llm,0.677,unrelated,sonnet
 28739,hyundai,query,blog,-2,보험금 청구·보상,neutral,0.0,llm,0.4,customer,sonnet
 28755,hyundai,query,blog,-2,태아·어린이보험,positive,0.6,classifier,1.0,advisor,sonnet
 28756,hyundai,query,blog,-2,보험금 청구·보상,positive,0.65,llm,0.408,customer,sonnet
@@ -455,9 +451,7 @@
 28870,meritz,query,blog,-2,자동차보험,negative,-0.9,classifier,1.0,customer,sonnet
 28871,hyundai,title,blog,-2,태아·어린이보험,neutral,0.0,classifier,1.0,advisor,sonnet
 28873,samsung_fire,query,blog,-2,태아·어린이보험,neutral,0.0,classifier,1.0,advisor,sonnet
-28889,kb,query,blog,-2,실손·건강보험,negative,-0.55,classifier,0.808,unrelated,haiku
 28902,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,0.708,media,haiku
-28903,kb,query,blog,-2,자동차보험,positive,0.6,classifier,0.8,unrelated,haiku
 28906,kb,query,blog,-2,자동차보험,negative,-0.7,classifier,0.899,advisor,classifier
 28911,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,classifier
 28912,kb,query,blog,-2,자동차보험,positive,0.55,classifier,1.0,advisor,classifier
@@ -468,7 +462,6 @@
 28921,kb,query,blog,-2,자동차보험,neutral,0.1,classifier,1.0,advisor,classifier
 28922,kb,query,blog,-2,자동차보험,neutral,-0.15,classifier,1.0,advisor,classifier
 28923,kb,query,blog,-2,상품 설계·고객후기,positive,0.5,llm,0.61,advisor,classifier
-28924,kb,query,blog,-2,자동차보험,neutral,0.0,llm,0.608,unrelated,haiku
 28930,kb,query,blog,-2,실손·건강보험,positive,0.2,llm,0.614,advisor,classifier
 29703,kb,query,cafearticle,-1,noise,,,review_noise,0.694,unrelated,classifier
 28932,kb,query,blog,-2,자동차보험,negative,-0.4,classifier,0.727,advisor,classifier
@@ -486,14 +479,12 @@
 28961,kb,query,blog,-2,실손·건강보험,neutral,0.1,classifier,1.0,advisor,classifier
 28963,kb,query,blog,-2,보험금 청구·보상,neutral,0.0,classifier,1.0,advisor,classifier
 28964,kb,query,blog,-2,보험금 청구·보상,negative,-0.6,llm,0.508,advisor,sonnet
-28968,kb,query,blog,-2,상품 설계·고객후기,negative,-0.5,classifier,0.734,unrelated,haiku
 28971,kb,query,blog,-2,상품 설계·고객후기,negative,-0.16,llm,0.4,advisor,classifier
 28973,kb,query,blog,-2,실손·건강보험,positive,0.2,classifier,1.0,advisor,haiku
 28974,kb,query,blog,-2,실손·건강보험,positive,0.4,llm,0.59,advisor,classifier
 28975,kb,query,blog,-2,실손·건강보험,neutral,0.0,llm,0.497,advisor,classifier
 28976,kb,query,blog,-2,실손·건강보험,neutral,-0.067,classifier,0.926,advisor,classifier
 28979,kb,query,blog,-2,상품 설계·고객후기,neutral,0.0,classifier,0.804,advisor,haiku
-28987,kb,query,blog,-2,자동차보험,negative,-0.55,classifier,0.904,unrelated,haiku
 28989,kb,query,blog,-2,자동차보험,positive,0.3,classifier,0.706,advisor,haiku
 21608,kb,query,youtube_comment,5,브랜드 캠페인,neutral,0.0,mapping,,customer,rule
 20757,general,query,cafearticle,-1,noise,,,mapping,,unrelated,haiku
@@ -515,41 +506,28 @@
 29065,hyundai,query,blog,-2,자동차보험,positive,0.225,classifier,1.0,advisor,classifier
 29067,kb,query,blog,-2,자동차보험,positive,0.6,classifier,0.707,advisor,classifier
 29069,kb,query,blog,-2,자동차보험,neutral,-0.025,classifier,1.0,advisor,classifier
-29075,kb,query,blog,-2,자동차보험,positive,0.65,llm,0.39,unrelated,haiku
-29086,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
 29087,samsung_fire,query,blog,-2,자동차보험,positive,0.25,classifier,1.0,advisor,classifier
-29090,kb,query,blog,-2,보험금 청구·보상,neutral,0.0,classifier,0.91,unrelated,haiku
 29092,kb,query,blog,-2,실손·건강보험,neutral,0.1,classifier,0.9,advisor,classifier
 29093,general,query,blog,-2,자동차보험,positive,0.375,classifier,0.802,advisor,classifier
 19212,meritz,query,cafearticle,4,noise,,,mapping,,unrelated,haiku
 29126,general,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,haiku
-29128,general,query,blog,-2,자동차보험,neutral,0.1,classifier,1.0,unrelated,haiku
 29129,general,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,haiku
-29131,general,query,blog,-2,자동차보험,neutral,-0.05,classifier,1.0,unrelated,haiku
-29134,general,query,blog,-2,자동차보험,negative,-0.2,classifier,0.906,unrelated,haiku
 29135,general,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,haiku
 29173,general,query,blog,-2,실손·건강보험,positive,0.367,llm,0.503,advisor,classifier
 29174,general,query,blog,-2,실손·건강보험,positive,0.275,llm,0.51,advisor,classifier
 29175,general,query,blog,-2,상품 설계·고객후기,positive,0.55,llm,0.611,advisor,classifier
 29182,general,query,blog,-2,상품 설계·고객후기,neutral,0.067,llm,0.607,advisor,sonnet
 29183,general,query,blog,-2,실손·건강보험,positive,0.9,classifier,0.899,customer,sonnet
-29185,general,query,blog,-2,보험금 청구·보상,negative,-0.3,llm,0.485,unrelated,sonnet
 14289,samsung_fire,query,blog,4,noise,,,mapping,,unrelated,haiku
 29768,kb,query,cafearticle,-1,noise,,,review_noise,0.694,unrelated,classifier
-29186,general,query,blog,-2,실손·건강보험,neutral,0.1,classifier,1.0,unrelated,haiku
 29190,general,query,blog,-2,실손·건강보험,neutral,0.0,classifier,0.797,advisor,haiku
 29193,general,query,blog,-2,실손·건강보험,neutral,0.0,classifier,0.91,advisor,haiku
 29196,general,query,blog,-2,태아·어린이보험,neutral,0.15,classifier,1.0,customer,sonnet
 29211,general,query,blog,-2,보험금 청구·보상,positive,0.5,llm,0.487,customer,sonnet
 29212,general,query,blog,-2,태아·어린이보험,neutral,0.15,classifier,0.793,advisor,classifier
-29215,general,query,blog,-2,실손·건강보험,positive,0.633,classifier,1.0,unrelated,sonnet
 29220,general,query,blog,-2,실손·건강보험,neutral,0.0,classifier,0.819,advisor,haiku
-29222,general,query,blog,-2,상품 설계·고객후기,neutral,0.0,classifier,0.912,unrelated,haiku
-29233,general,query,blog,-2,실손·건강보험,positive,0.6,classifier,1.0,unrelated,sonnet
-29234,general,query,blog,-2,실손·건강보험,positive,0.6,classifier,0.902,unrelated,haiku
 29235,general,query,blog,-2,상품 설계·고객후기,positive,0.3,classifier,0.929,advisor,haiku
 29780,kb,query,cafearticle,-1,noise,,,author_filter,1.0,unrelated,classifier
-29237,general,query,blog,-2,실손·건강보험,neutral,0.1,classifier,0.914,unrelated,haiku
 29239,general,query,blog,-2,실손·건강보험,positive,0.7,classifier,1.0,advisor,haiku
 29243,general,query,blog,-2,실손·건강보험,neutral,0.1,classifier,1.0,advisor,haiku
 29247,general,query,blog,-2,태아·어린이보험,neutral,0.05,llm,0.584,advisor,classifier
@@ -581,11 +559,11 @@
 29409,samsung_fire,query,cafearticle,-2,실손·건강보험,neutral,0.1,llm,0.624,customer,haiku
 29421,samsung_fire,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.904,customer,classifier
 29429,samsung_fire,query,cafearticle,-2,자동차보험,negative,-0.45,classifier,0.913,customer,haiku
-29438,samsung_fire,query,cafearticle,-2,자동차보험,positive,0.667,llm,0.404,unrelated,haiku
 29450,db,query,cafearticle,-2,실손·건강보험,neutral,0.0,llm,0.598,customer,classifier
 29460,db,query,cafearticle,-2,상품 설계·고객후기,positive,0.3,llm,0.691,customer,classifier
 29465,db,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.904,customer,classifier
 29480,db,query,cafearticle,-2,실손·건강보험,positive,0.7,llm,0.607,customer,haiku
+29438,samsung_fire,query,cafearticle,-1,noise,positive,0.667,author_filter,0.404,unrelated,haiku
 29484,db,query,cafearticle,-2,자동차보험,positive,0.75,classifier,0.902,advisor,classifier
 29490,db,query,cafearticle,-2,실손·건강보험,negative,-0.35,classifier,0.797,customer,haiku
 29491,hyundai,query,cafearticle,-2,태아·어린이보험,neutral,0.0,classifier,1.0,customer,haiku
@@ -632,13 +610,10 @@
 29698,kb,query,cafearticle,-2,보험금 청구·보상,neutral,0.2,llm,0.616,advisor,haiku
 29701,kb,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.892,customer,classifier
 29702,kb,query,cafearticle,-2,상품 설계·고객후기,negative,-0.5,llm,0.613,advisor,classifier
-29704,kb,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.824,unrelated,haiku
 29706,kb,query,cafearticle,-2,실손·건강보험,positive,0.625,llm,0.699,advisor,haiku
-29707,kb,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.827,unrelated,haiku
 29716,kb,query,cafearticle,-2,태아·어린이보험,neutral,0.0,classifier,1.0,customer,haiku
 29718,kb,query,cafearticle,-2,실손·건강보험,positive,0.5,classifier,0.804,customer,haiku
 29728,kb,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.817,customer,haiku
-29730,kb,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.75,unrelated,haiku
 29738,kb,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,customer,haiku
 29743,kb,query,cafearticle,-2,실손·건강보험,negative,-0.175,classifier,1.0,advisor,haiku
 29744,kb,query,cafearticle,-2,실손·건강보험,negative,-0.767,classifier,0.904,advisor,classifier
@@ -677,16 +652,6 @@
 29871,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,,author_review
 29873,general,query,cafearticle,-2,자동차보험,neutral,0.1,classifier,1.0,,author_review
 29874,general,query,cafearticle,-2,자동차보험,positive,0.2,classifier,0.909,,author_review
-29888,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29891,general,query,cafearticle,-2,자동차보험,positive,0.3,classifier,1.0,unrelated,haiku
-29892,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.9,unrelated,haiku
-29893,general,query,cafearticle,-2,자동차보험,positive,0.233,classifier,1.0,unrelated,haiku
-29894,general,query,cafearticle,-2,자동차보험,positive,0.2,classifier,1.0,unrelated,haiku
-29895,general,query,cafearticle,-2,자동차보험,neutral,0.1,classifier,1.0,unrelated,haiku
-29908,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29909,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29920,general,query,cafearticle,-2,자동차보험,negative,-0.2,classifier,1.0,unrelated,haiku
-29922,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
 29926,general,query,cafearticle,-2,실손·건강보험,positive,0.6,classifier,0.899,advisor,haiku
 29929,general,query,cafearticle,-2,상품 설계·고객후기,positive,0.6,classifier,1.0,advisor,haiku
 29933,general,query,cafearticle,-2,실손·건강보험,positive,0.475,classifier,0.904,advisor,haiku
@@ -708,10 +673,10 @@
 29974,general,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,0.897,advisor,haiku
 29976,general,query,cafearticle,-2,상품 설계·고객후기,positive,0.7,llm,0.598,advisor,classifier
 29977,general,query,cafearticle,-2,실손·건강보험,positive,0.4,classifier,0.805,advisor,classifier
-29978,general,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,1.0,unrelated,haiku
 29979,general,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,1.0,advisor,haiku
 29980,general,query,cafearticle,-2,실손·건강보험,positive,0.5,classifier,0.81,advisor,haiku
 27227,kb,query,blog,-1,noise,,,author_filter,0.492,unrelated,haiku
+29978,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 29973,general,query,cafearticle,-2,실손·건강보험,neutral,0.0,llm,0.623,customer,classifier
 29986,general,query,cafearticle,-2,실손·건강보험,positive,0.325,classifier,1.0,advisor,haiku
 29988,general,query,cafearticle,-2,상품 설계·고객후기,neutral,-0.2,llm,0.613,customer,classifier
@@ -922,13 +887,49 @@
 30243,samsung_fire,query,youtube_comment,-2,브랜드 캠페인,positive,0.833,classifier,1.0,customer,rule
 30244,db,query,youtube_comment,-2,브랜드 캠페인,positive,0.633,classifier,1.0,customer,rule
 30245,db,query,youtube_comment,-2,브랜드 캠페인,positive,0.65,classifier,1.0,customer,rule
+28558,kb,query,blog,-1,noise,negative,-0.4,author_filter,0.921,unrelated,haiku
+28573,kb,query,blog,-1,noise,positive,0.5,author_filter,0.904,unrelated,haiku
+28639,samsung_fire,query,blog,-1,noise,neutral,0.0,author_filter,0.611,unrelated,sonnet
+28735,hyundai,query,blog,-1,noise,positive,0.7,author_filter,0.677,unrelated,sonnet
+28889,kb,query,blog,-1,noise,negative,-0.55,author_filter,0.808,unrelated,haiku
+28903,kb,query,blog,-1,noise,positive,0.6,author_filter,0.8,unrelated,haiku
+28924,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.608,unrelated,haiku
+28968,kb,query,blog,-1,noise,negative,-0.5,author_filter,0.734,unrelated,haiku
+28987,kb,query,blog,-1,noise,negative,-0.55,author_filter,0.904,unrelated,haiku
+29075,kb,query,blog,-1,noise,positive,0.65,author_filter,0.39,unrelated,haiku
+29086,kb,query,blog,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29090,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.91,unrelated,haiku
+29128,general,query,blog,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
 17724,kb,query,cafearticle,40,noise,,,mapping,,unrelated,haiku
+29131,general,query,blog,-1,noise,neutral,-0.05,author_filter,1.0,unrelated,haiku
+29134,general,query,blog,-1,noise,negative,-0.2,author_filter,0.906,unrelated,haiku
 29483,kb,title,cafearticle,-2,자동차보험,neutral,0.0,llm,0.501,customer,haiku
 29497,kb,title,cafearticle,-2,태아·어린이보험,neutral,0.0,classifier,1.0,customer,classifier
 29818,db,title,cafearticle,-2,자동차보험,positive,0.533,classifier,1.0,advisor,classifier
 29983,db,title,cafearticle,-2,자동차보험,neutral,-0.1,classifier,0.908,customer,classifier
+29185,general,query,blog,-1,noise,negative,-0.3,author_filter,0.485,unrelated,sonnet
+29186,general,query,blog,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
 29418,meritz,title,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
+29215,general,query,blog,-1,noise,positive,0.633,author_filter,1.0,unrelated,sonnet
+29222,general,query,blog,-1,noise,neutral,0.0,author_filter,0.912,unrelated,haiku
+29233,general,query,blog,-1,noise,positive,0.6,author_filter,1.0,unrelated,sonnet
 29823,samsung_fire,title,cafearticle,-1,noise,,,author_filter,1.0,unrelated,classifier
+29234,general,query,blog,-1,noise,positive,0.6,author_filter,0.902,unrelated,haiku
+29237,general,query,blog,-1,noise,neutral,0.1,author_filter,0.914,unrelated,haiku
+29704,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.824,unrelated,haiku
+29707,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.827,unrelated,haiku
+29730,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.75,unrelated,haiku
+29888,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29891,general,query,cafearticle,-1,noise,positive,0.3,author_filter,1.0,unrelated,haiku
+29892,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.9,unrelated,haiku
+29893,general,query,cafearticle,-1,noise,positive,0.233,author_filter,1.0,unrelated,haiku
+29894,general,query,cafearticle,-1,noise,positive,0.2,author_filter,1.0,unrelated,haiku
+29895,general,query,cafearticle,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
+29908,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29909,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29920,general,query,cafearticle,-1,noise,negative,-0.2,author_filter,1.0,unrelated,haiku
+29922,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29912,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 28531,kb,query,blog,-2,자동차보험,positive,0.567,classifier,1.0,advisor,haiku
 19404,meritz,query,cafearticle,43,noise,,,mapping,,unrelated,haiku
 19915,kb,query,cafearticle,43,noise,,,mapping,,unrelated,haiku
@@ -945,7 +946,7 @@
 14229,samsung_fire,query,blog,103,noise,,,mapping,,unrelated,haiku
 28853,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,haiku
 22549,samsung_fire,query,youtube_comment,-1,noise,,,mapping,,customer,rule
-28892,kb,query,blog,-2,이벤트·프로모션,neutral,0.0,classifier,0.716,unrelated,haiku
+28892,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.716,unrelated,haiku
 22553,samsung_fire,query,youtube_comment,-1,noise,,,mapping,,customer,rule
 14767,db,query,blog,104,noise,,,mapping,,unrelated,haiku
 15978,kb,query,blog,106,noise,,,mapping,,unrelated,haiku
@@ -3471,7 +3472,7 @@
 28481,kb,query,youtube_comment,-2,상품 설계·고객후기,positive,0.7,llm,0.619,customer,rule
 29350,samsung_fire,query,cafearticle,-1,noise,,,review_noise,0.402,unrelated,haiku
 29411,samsung_fire,query,cafearticle,-2,noise,,,classifier,1.0,customer,haiku
-29433,samsung_fire,query,cafearticle,-2,브랜드 캠페인,neutral,0.0,llm,0.694,unrelated,haiku
+29433,samsung_fire,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.694,unrelated,haiku
 29506,hyundai,query,cafearticle,-2,자동차보험,negative,-0.533,llm,0.605,customer,classifier
 24556,db,query,youtube_comment,6,이벤트·프로모션,positive,0.55,mapping,,customer,rule
 14894,hyundai,query,blog,-1,noise,,,mapping,,unrelated,haiku
@@ -3574,8 +3575,8 @@
 28547,kb,query,blog,-2,noise,,,classifier,0.713,unrelated,classifier
 28550,db,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28551,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
-28542,kb,query,blog,-2,자동차보험,neutral,0.0,llm,0.506,unrelated,classifier
 28549,kb,query,blog,-2,실손·건강보험,negative,-0.5,classifier,0.909,advisor,classifier
+28542,kb,query,blog,-1,noise,neutral,0.0,author_filter,0.506,unrelated,classifier
 28562,kb,query,blog,-2,자동차보험,neutral,0.1,classifier,1.0,advisor,classifier
 28553,kb,query,blog,-2,noise,,,classifier,0.902,unrelated,classifier
 28554,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
@@ -3592,7 +3593,6 @@
 28571,kb,query,blog,-1,noise,,,review_noise,0.474,unrelated,classifier
 28569,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,classifier
 28579,kb,query,blog,-2,실손·건강보험,neutral,0.0,classifier,0.904,advisor,classifier
-28584,samsung_fire,query,blog,-2,자동차보험,neutral,0.15,llm,0.597,unrelated,classifier
 28583,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28585,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28587,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
@@ -3601,6 +3601,7 @@
 28591,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28592,samsung_fire,query,blog,-2,noise,,,classifier,0.899,unrelated,classifier
 28593,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
+28584,samsung_fire,query,blog,-1,noise,neutral,0.15,author_filter,0.597,unrelated,classifier
 28581,kb,query,blog,-1,noise,,,review_noise,0.394,unrelated,haiku
 28594,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28596,samsung_fire,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
@@ -3747,9 +3748,9 @@
 28807,meritz,query,blog,-2,상품 설계·고객후기,neutral,0.1,classifier,1.0,advisor,classifier
 28812,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28821,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
-28810,meritz,query,blog,-2,실손·건강보험,neutral,0.0,classifier,1.0,unrelated,haiku
 28820,meritz,query,blog,-2,상품 설계·고객후기,neutral,0.2,classifier,1.0,advisor,classifier
 28823,hyundai,query,blog,-2,태아·어린이보험,positive,0.4,classifier,1.0,customer,classifier
+28810,meritz,query,blog,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 28828,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28829,meritz,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28837,meritz,query,blog,-1,noise,,,review_noise,0.61,unrelated,classifier
@@ -3782,7 +3783,7 @@
 28881,kb,query,blog,-2,보험금 청구·보상,neutral,0.0,llm,0.4,advisor,classifier
 28883,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28885,kb,query,blog,-2,noise,,,classifier,0.716,unrelated,classifier
-28886,kb,query,blog,-2,자동차보험,neutral,0.05,classifier,0.907,unrelated,haiku
+28886,kb,query,blog,-1,noise,neutral,0.05,author_filter,0.907,unrelated,haiku
 28882,kb,query,blog,-1,noise,,,review_noise,0.311,unrelated,classifier
 28884,kb,query,blog,-1,noise,,,review_noise,0.609,unrelated,classifier
 28888,hyundai,query,blog,-1,noise,,,review_noise,0.629,advisor,classifier
@@ -3792,9 +3793,9 @@
 28900,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28901,kb,query,blog,-2,자동차보험,neutral,0.15,classifier,1.0,advisor,classifier
 28907,kb,query,blog,-2,noise,,,classifier,0.774,unrelated,classifier
+28898,kb,query,blog,-1,noise,negative,-0.2,author_filter,0.904,unrelated,haiku
 28896,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,classifier
 28897,kb,query,blog,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,classifier
-28898,kb,query,blog,-2,자동차보험,negative,-0.2,classifier,0.904,unrelated,haiku
 28899,kb,query,blog,-2,자동차보험,positive,0.467,classifier,1.0,advisor,classifier
 28916,kb,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 28909,kb,query,blog,-2,자동차보험,neutral,0.1,classifier,1.0,advisor,classifier
@@ -3882,23 +3883,23 @@
 29097,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 29099,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 29101,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
+29098,general,query,blog,-1,noise,positive,0.533,author_filter,1.0,unrelated,haiku
 29100,general,query,blog,-1,noise,,,review_noise,0.515,unrelated,classifier
 29106,general,query,blog,-2,noise,,,classifier,0.815,unrelated,classifier
 29104,general,query,blog,-1,noise,,,review_noise,0.591,unrelated,classifier
 29108,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
-29098,general,query,blog,-2,자동차보험,positive,0.533,classifier,1.0,unrelated,haiku
 29117,general,query,blog,-1,noise,,,review_noise,0.4,unrelated,classifier
 29120,general,query,blog,-1,noise,,,review_noise,0.604,unrelated,classifier
 29115,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 29110,general,query,blog,-1,noise,,,review_noise,0.605,unrelated,haiku
 21270,kb,query,youtube_comment,7,브랜드 캠페인,positive,0.85,mapping,,customer,rule
 29114,general,query,blog,-1,noise,,,review_noise,0.63,unrelated,classifier
-29119,general,query,blog,-2,자동차보험,negative,-0.5,classifier,1.0,unrelated,haiku
+29119,general,query,blog,-1,noise,negative,-0.5,author_filter,1.0,unrelated,haiku
 29122,general,query,blog,-2,noise,,,classifier,1.0,unrelated,classifier
 29125,general,query,blog,-2,noise,,,classifier,0.902,advisor,sonnet
 29132,general,query,blog,-1,noise,,,review_noise,0.512,unrelated,classifier
-29123,general,query,blog,-2,자동차보험,neutral,-0.05,classifier,0.906,unrelated,haiku
 29130,general,query,blog,-2,자동차보험,neutral,-0.1,classifier,1.0,advisor,classifier
+29123,general,query,blog,-1,noise,neutral,-0.05,author_filter,0.906,unrelated,haiku
 29137,general,query,blog,-2,noise,,,classifier,0.704,unrelated,classifier
 29147,general,query,blog,-1,noise,,,review_noise,0.505,unrelated,classifier
 29136,general,query,blog,-2,자동차보험,neutral,-0.05,classifier,1.0,advisor,haiku
@@ -3996,7 +3997,7 @@
 29334,kb,query,cafearticle,-2,자동차보험,negative,-0.5,classifier,1.0,advisor,classifier
 29326,kb,query,cafearticle,-1,noise,,,review_noise,0.408,unrelated,classifier
 29321,kb,query,cafearticle,-2,실손·건강보험,neutral,0.2,llm,0.42,customer,haiku
-29322,kb,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.902,unrelated,haiku
+29322,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.902,unrelated,haiku
 24851,db,query,youtube_comment,6,이벤트·프로모션,positive,0.8,mapping,,customer,rule
 29345,kb,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
 29346,kb,query,cafearticle,-2,noise,,,classifier,0.901,unrelated,classifier
@@ -4136,8 +4137,8 @@
 29550,hyundai,query,cafearticle,-2,noise,,,classifier,0.967,unrelated,classifier
 29551,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
 29558,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
+29547,hyundai,query,cafearticle,-1,noise,neutral,-0.067,author_filter,0.395,unrelated,classifier
 29546,hyundai,query,cafearticle,-2,태아·어린이보험,neutral,0.0,classifier,1.0,customer,haiku
-29547,hyundai,query,cafearticle,-2,보험금 청구·보상,neutral,-0.067,llm,0.395,unrelated,classifier
 29548,hyundai,query,cafearticle,-2,실손·건강보험,neutral,0.1,llm,0.619,customer,haiku
 29559,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
 29561,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
@@ -4154,8 +4155,8 @@
 29576,hyundai,query,cafearticle,-2,noise,,,classifier,1.0,unrelated,classifier
 29581,meritz,query,cafearticle,-1,noise,,,review_noise,0.425,unrelated,classifier
 29573,hyundai,query,cafearticle,-2,자동차보험,positive,0.767,llm,0.607,customer,classifier
+29575,hyundai,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.803,unrelated,haiku
 29580,meritz,query,cafearticle,-1,noise,,,review_noise,0.394,unrelated,classifier
-29575,hyundai,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.803,unrelated,haiku
 29579,samsung_fire,query,cafearticle,-2,태아·어린이보험,neutral,-0.1,classifier,1.0,customer,classifier
 29582,meritz,query,cafearticle,-2,상품 설계·고객후기,neutral,0.0,classifier,1.0,customer,classifier
 29587,meritz,query,cafearticle,-2,상품 설계·고객후기,positive,0.3,classifier,1.0,advisor,classifier
@@ -4183,7 +4184,7 @@
 29634,kb,query,cafearticle,-1,noise,,,review_noise,0.506,unrelated,classifier
 29636,kb,query,cafearticle,-2,noise,,,classifier,0.789,unrelated,classifier
 29638,kb,query,cafearticle,-1,noise,,,review_noise,0.699,unrelated,classifier
-29635,kb,query,cafearticle,-2,보험금 청구·보상,neutral,0.0,llm,0.517,unrelated,classifier
+29635,kb,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.517,unrelated,classifier
 29644,kb,query,cafearticle,-1,noise,,,review_noise,0.622,unrelated,classifier
 29641,kb,query,cafearticle,-2,noise,,,classifier,0.71,unrelated,classifier
 29645,kb,query,cafearticle,-1,noise,,,review_noise,0.498,unrelated,classifier
@@ -4304,16 +4305,16 @@
 29865,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,,author_review
 29869,general,query,cafearticle,-2,자동차보험,positive,0.567,classifier,1.0,,author_review
 29872,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,advisor,classifier
-29878,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29879,general,query,cafearticle,-2,자동차보험,positive,0.6,classifier,1.0,unrelated,haiku
-29880,general,query,cafearticle,-2,자동차보험,positive,0.75,classifier,0.902,unrelated,haiku
-29881,general,query,cafearticle,-2,자동차보험,neutral,-0.1,classifier,1.0,unrelated,haiku
-29882,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,0.907,unrelated,haiku
+29878,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29879,general,query,cafearticle,-1,noise,positive,0.6,author_filter,1.0,unrelated,haiku
+29880,general,query,cafearticle,-1,noise,positive,0.75,author_filter,0.902,unrelated,haiku
+29881,general,query,cafearticle,-1,noise,neutral,-0.1,author_filter,1.0,unrelated,haiku
 22721,db,query,youtube_comment,21,브랜드 캠페인,neutral,0.0,mapping,,customer,rule
 15236,meritz,query,blog,200,상품 설계·고객후기,negative,-0.467,mapping,,customer,sonnet
 15247,meritz,query,blog,109,실손·건강보험,neutral,0.0,mapping,,customer,sonnet
+29882,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,0.907,unrelated,haiku
 18081,samsung_fire,query,cafearticle,-1,noise,,,mapping,,unrelated,haiku
-29890,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
+29890,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 21291,kb,query,youtube_comment,7,브랜드 캠페인,positive,0.233,mapping,,customer,rule
 21326,kb,query,youtube_comment,7,브랜드 캠페인,neutral,-0.05,mapping,,customer,rule
 24196,db,query,youtube_comment,7,브랜드 캠페인,positive,0.75,mapping,,customer,rule
@@ -4324,17 +4325,16 @@
 22833,db,query,youtube_comment,16,브랜드 캠페인,neutral,0.0,mapping,,customer,rule
 29899,general,query,cafearticle,-2,noise,,,classifier,0.72,unrelated,classifier
 29906,general,query,cafearticle,-1,noise,,,review_noise,0.695,unrelated,classifier
-29896,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29897,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29898,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
-29900,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
+29896,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29897,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29898,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29900,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
 29905,general,query,cafearticle,-2,자동차보험,positive,0.7,classifier,1.0,advisor,classifier
-29913,general,query,cafearticle,-2,자동차보험,neutral,0.1,classifier,1.0,unrelated,haiku
-29914,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
 29925,general,query,cafearticle,-2,실손·건강보험,neutral,0.0,classifier,0.811,advisor,classifier
+29913,general,query,cafearticle,-1,noise,neutral,0.1,author_filter,1.0,unrelated,haiku
 29911,general,query,cafearticle,-1,noise,,,review_noise,0.6,unrelated,classifier
-29910,general,query,cafearticle,-2,자동차보험,positive,0.65,classifier,1.0,unrelated,haiku
-29912,general,query,cafearticle,-2,자동차보험,neutral,0.0,classifier,1.0,unrelated,haiku
+29914,general,query,cafearticle,-1,noise,neutral,0.0,author_filter,1.0,unrelated,haiku
+29910,general,query,cafearticle,-1,noise,positive,0.65,author_filter,1.0,unrelated,haiku
 29927,general,query,cafearticle,-2,실손·건강보험,positive,0.733,classifier,1.0,customer,classifier
 29928,general,query,cafearticle,-2,실손·건강보험,neutral,-0.1,llm,0.591,customer,classifier
 29930,general,query,cafearticle,-2,상품 설계·고객후기,negative,-0.433,classifier,0.802,customer,classifier
