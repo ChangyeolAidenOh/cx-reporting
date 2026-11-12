@@ -377,8 +377,9 @@ def sentiment_new(threshold=0.3, use_llm=True):
 def llm_tiebreak(batch_size=20):
     """Second stage for review docs: Haiku picks a category or 'noise'.
     Runs after apply_author_filter so unrelated-author docs never reach it."""
-    import os, re, json as _json
+    import os, re
     import anthropic
+    from analysis.author_llm import extract_json_array
     cats = ["자동차보험", "실손·건강보험", "보험금 청구·보상", "상품 설계·고객후기", "태아·어린이보험",
             "브랜드 캠페인", "이벤트·프로모션", "noise"]
     with get_conn() as conn:
@@ -398,9 +399,7 @@ def llm_tiebreak(batch_size=20):
         try:
             r = client.messages.create(model=model, max_tokens=800,
                                        messages=[{"role": "user", "content": prompt}])
-            txt = re.sub(r"```json|```", "", r.content[0].text).strip()
-            m = re.search(r"\[.*\]", txt, flags=re.S)
-            for item in _json.loads(m.group(0) if m else txt):
+            for item in extract_json_array(r.content[0].text):
                 k = int(item["id"]) - 1
                 if 0 <= k < len(b) and item.get("category") in cats:
                     out[int(b.iloc[k]["id"])] = item["category"]

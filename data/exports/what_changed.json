@@ -174,11 +174,11 @@
       "author_web_docs": 0,
       "author_confirmed": 0,
       "author_review_rate": 0.0,
-      "author_llm_labeled": 0,
-      "author_filtered": 104,
+      "author_llm_labeled": 25,
+      "author_filtered": 23,
       "llm_share": 0.0,
       "total_docs": 16650,
-      "outlier_rate_total": 0.225,
+      "outlier_rate_total": 0.2264,
       "review_queue": 0
     }
   },

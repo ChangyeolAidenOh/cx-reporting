@@ -10,7 +10,7 @@ author_type answers "who wrote this?", orthogonal to topic_label ("what is it ab
 
 The prompt is two-step (is insurance the subject? -> who wrote it?) with a
 structured insurance_topic field that is enforced in code. The JSON array is
-extracted as the first [...] block because Haiku sometimes appends prose.
+located with raw_decode (first well-formed array) because Haiku sometimes wraps it in prose.
 """
 
 import os
@@ -56,14 +56,29 @@ def get_client():
     return anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 
+def extract_json_array(text):
+    """Return the first JSON array that parses in a model reply.
+    A greedy [.*] regex spans to the LAST bracket in the reply, so any prose after the array
+    that contains a bracket made the whole batch fail ("Extra data"). Scanning every '[' with
+    raw_decode accepts the first well-formed array wherever the model put it."""
+    txt = re.sub(r"```json|```", "", text)
+    dec = json.JSONDecoder()
+    i = txt.find("[")
+    while i != -1:
+        try:
+            obj, _ = dec.raw_decode(txt, i)
+            if isinstance(obj, list):
+                return obj
+        except json.JSONDecodeError:
+            pass
+        i = txt.find("[", i + 1)
+    raise ValueError("no JSON array in response")
+
+
 def parse_response(text, ids):
     """Map doc ids (list, in batch order) to labels from the model's JSON array."""
-    txt = re.sub(r"```json|```", "", text).strip()
-    m = re.search(r"\[.*\]", txt, re.S)
-    if not m:
-        raise ValueError("no JSON array in response")
     out = {}
-    for item in json.loads(m.group(0)):
+    for item in extract_json_array(text):
         k = int(item["id"]) - 1
         t = str(item.get("type", "")).strip().lower()
         if not item.get("insurance_topic", True):

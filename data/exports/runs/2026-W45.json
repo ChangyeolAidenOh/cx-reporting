@@ -1,5 +1,5 @@
 {
-  "started": "2026-11-12T12:46:08.343825",
+  "started": "2026-11-12T13:00:06.081608",
   "steps": {
     "new_docs": 0,
     "brands": {
@@ -20,14 +20,17 @@
     },
     "author_review": {
       "n": 25,
-      "labeled": 0,
-      "dist": {},
+      "labeled": 25,
+      "dist": {
+        "unrelated": 23,
+        "customer": 2
+      },
       "blog_customer_verified": 0,
       "verify_changed": 0
     },
     "author_filter": {
-      "n": 104,
-      "candidates": 104,
+      "n": 23,
+      "candidates": 23,
       "stopped": false
     },
     "tiebreak": {
@@ -38,7 +41,7 @@
     },
     "report": "ok"
   },
-  "finished": "2026-11-12T12:48:05.975966",
+  "finished": "2026-11-12T13:01:44.654493",
   "week_label": "2026-W45",
   "alerts": []
 }
