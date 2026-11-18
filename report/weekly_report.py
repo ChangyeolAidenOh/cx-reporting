@@ -2,7 +2,7 @@
 
 Core deliverable: 1-page weekly CX report PDF for the target brand.
 Queries mart tables -> structured prompt with signal-strength tags
--> Claude Sonnet narrative -> PDF.
+-> Claude Sonnet report text -> PDF.
 
 Category-composition evidence is read per segment (web_customer / web_advisor /
 youtube) from data/exports/brand_category_test.csv: only cells that are
@@ -450,7 +450,7 @@ def run(week=None, dry_run=False):
         print(prompt)
         return
     narrative = generate_narrative(prompt)
-    print(f"Narrative generated ({len(narrative)} chars)")
+    print(f"Report text generated ({len(narrative)} chars)")
     pdf = generate_pdf(narrative, week_label)
     save_report(week_label, d, narrative, pdf)
     print("\n" + "=" * 70 + "\nREPORT PREVIEW\n" + "=" * 70)

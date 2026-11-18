@@ -3,7 +3,7 @@
 Usage:
     python -m orchestration.weekly_run                 # full weekly run
     python -m orchestration.weekly_run --skip-collect  # re-process without hitting APIs
-    python -m orchestration.weekly_run --no-llm        # no Haiku/Sonnet steps, no report narrative
+    python -m orchestration.weekly_run --no-llm        # no Haiku/Sonnet steps, no report text
     python -m orchestration.weekly_run --dry-run       # collect + stage + classify + author steps; no sentiment/marts/snapshot/report
 
 Step order:

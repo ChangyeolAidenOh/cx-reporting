@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS mart.weekly_report (
     brand           VARCHAR(50) NOT NULL,
     week_label      VARCHAR(20) NOT NULL,  -- e.g., "2026-W20"
     report_json     JSONB,                 -- structured report data
-    report_text     TEXT,                  -- LLM-generated narrative
+    report_text     TEXT,                  -- LLM-generated report text
     pdf_path        VARCHAR(500),
     generated_at    TIMESTAMP DEFAULT NOW(),
     UNIQUE (brand, week_label)
